@@ -1,7 +1,8 @@
 #pragma once
 
 #pragma region Filepaths
-#define FONT_FILEPATH						"../resources/Fonts/Orbitron/Orbitron-Regular.ttf"
+#define FONT_FILEPATH					"../resources/Fonts/Orbitron/Orbitron-Regular.ttf"
+#define PLAYER_TEXTURE_PATH				"../resources/player.png"
 #pragma endregion
 
 #pragma region Colors
@@ -16,6 +17,11 @@
 
 #define SCREEN_WIDTH					800
 #define SCREEN_HEIGHT					600
+
+#define PLAYER_WIDTH					24
+#define PLAYER_HEIGHT					24
+
+#define PLAYER_VELOCITY					50
 
 #define JOYSTICK_DEAD_ZONE				8000
 

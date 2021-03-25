@@ -29,6 +29,8 @@ public:
 
 	enum FontSize
 	{
+		TWELVE = 12,
+		SIXTEEN = 16,
 		TWENTY = 20,
 		THIRTYFOUR = 34,
 
@@ -49,8 +51,8 @@ public:
 		bool useChatBox;
 	};
 
-	static int CreateText(std::string text, int x, int y, Display::FontSize fontSize, bool useChatBox, SDL_Color textColor = { 255, 255, 255 });
-	static bool UpdateText(int id, std::string text, SDL_Color textColor = { 0, 0, 0 });
+	static int CreateText(const std::string& text, int x, int y, Display::FontSize fontSize, bool useChatBox, SDL_Color textColor = { 0, 0, 0 });
+	static bool UpdateText(int id, const std::string& text, SDL_Color textColor = { 0, 0, 0 });
 	static bool MoveText(int id, int x, int y);
 	static bool SetTextIsVisible(int id, bool isVisible);
 	static bool RemoveText(int id);

@@ -157,16 +157,26 @@ void Display::InjectFrame()
 		double chatY = 0.0;
 		double chatHeight = 0.0;
 
-		if (it->fontsize == FontSize::TWENTY)
+		switch (it->fontsize)
 		{
+		case FontSize::TWELVE:
+			chatY = SCREEN_HEIGHT * .5;
+			chatHeight = 25;
+			break;
+		case FontSize::SIXTEEN:
+			chatY = SCREEN_HEIGHT * .475;
+			chatHeight = 40;
+			break;
+		case FontSize::TWENTY:
 			chatY = SCREEN_HEIGHT * .41;
 			chatHeight = 50; // should be about right with ~5 pixels between text
-		}
-		else //we only have 2 fontsizes (so this is thirtyfour)
-		{
+			break;
+		case FontSize::THIRTYFOUR:
 			chatY = SCREEN_HEIGHT * .368;
 			chatHeight = 75;
+			break;
 		}
+
 		//Render chat box
 		SDL_Rect chatBox = { 5, (int)chatY, (int)(SCREEN_WIDTH * .5) - 10, (int)chatHeight };
 		SDL_SetRenderDrawColor(Display::renderer, 0x00, 0x00, 0xFF, 0xFF);
@@ -226,14 +236,14 @@ TTF_Font* const Display::GetFont(FontSize size)
 	return Display::fonts[size];
 }
 
-int Display::CreateText(std::string text, int x, int y, Display::FontSize fontSize, bool useChatBox, SDL_Color textColor /*= { 0, 0, 0 }*/)
+int Display::CreateText(const std::string& text, int x, int y, Display::FontSize fontSize, bool useChatBox, SDL_Color textColor /*= { 0, 0, 0 }*/)
 {
 	int id = Display::textControlIdCounter++;
 	Display::textQueue.push_back(QueuedText{ x, y, text, textColor, fontSize, true, id, useChatBox });
 	return id;
 }
 
-bool Display::UpdateText(int id, std::string text, SDL_Color textColor /*= { 0, 0, 0 }*/)
+bool Display::UpdateText(int id, const std::string& text, SDL_Color textColor /*= { 0, 0, 0 }*/)
 {
 	for (QueuedText& qt : Display::textQueue)
 	{
@@ -296,7 +306,7 @@ bool Display::RemoveText(int id)
 #pragma region Private Methods
 bool Display::loadFonts()
 {
-	std::vector<FontSize> fontsizesToLoad = { TWENTY, THIRTYFOUR };
+	std::vector<FontSize> fontsizesToLoad = { TWELVE, SIXTEEN, TWENTY, THIRTYFOUR };
 
 	for (size_t i = 0; i < fontsizesToLoad.size(); i++)
 	{

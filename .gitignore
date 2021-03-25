@@ -2,3 +2,5 @@
 BlizzGameJam2021/x64/
 *.iobj
 *.ipdb
+BlizzGameJam2021/Debug/
+BlizzGameJam2021/Release/

@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Player.h"
+#include "Map.h"
 #include "Constants.h"
 #include "SDL_timer.h"
 #include "SDL_keycode.h"
@@ -21,9 +22,13 @@ Game::Game()
 
 	//init player
 	this->player = new Player(0.0, 0.0, Direction::DOWN);
+	this->player->SetPosition(96, 888);
 
 	//init camera
 	this->camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+
+	//load initial map
+	this->map = new Map("../resources/western.csv", "../resources/western.png");
 
 	Game::_instance = this;
 }
@@ -39,6 +44,12 @@ Game::~Game()
 		delete this->player;
 		this->player = nullptr;
 	}
+
+	if (this->map)
+	{
+		delete this->map;
+		this->map = nullptr;
+	}
 }
 
 const Game* Game::GetInstance()
@@ -49,7 +60,8 @@ const Game* Game::GetInstance()
 void Game::InjectFrame()
 {
 #if _DEBUG
-	assert(player);
+	assert(this->player);
+	assert(this->map);
 #endif
 
 	Uint32 elapsedTimeInMilliseconds = SDL_GetTicks();
@@ -65,7 +77,28 @@ void Game::InjectFrame()
 	camera.x = (this->player->GetPositionX() + PLAYER_WIDTH / 2) - SCREEN_WIDTH / (2 * RENDER_SCALE_AMOUNT);
 	camera.y = (this->player->GetPositionY() + PLAYER_HEIGHT / 2) - SCREEN_HEIGHT / (2 * RENDER_SCALE_AMOUNT);
 
+	//Keep the camera in bounds
+	const int mapWidth = this->map->GetColumnCount() * TILE_WIDTH;
+	const int mapHeight = this->map->GetRowCount() * TILE_HEIGHT;
+	if (camera.x < 0)
+	{
+		camera.x = 0;
+	}
+	else if ((camera.x + (camera.w / 2)) > (mapWidth - (TILE_WIDTH / 2)))
+	{
+		camera.x = mapWidth - (camera.w / 2) - (TILE_WIDTH / 2);
+	}
+	if (camera.y < 0)
+	{
+		camera.y = 0;
+	}
+	else if ((camera.y + (camera.h / 2)) > (mapHeight - (TILE_HEIGHT / 2)))
+	{
+		camera.y = mapHeight - (camera.h / 2) - (TILE_HEIGHT / 2);
+	}
+
 	//now that updates are done, draw the frame
+	this->map->Draw(camera.x, camera.y);
 	this->player->Draw();
 
 	//end of frame
@@ -139,6 +172,11 @@ void Game::InjectControllerStickMovement(unsigned char axis, short value)
 const Player* Game::GetPlayer() const
 {
 	return this->player;
+}
+
+const Map* Game::GetMap() const
+{
+	return this->map;
 }
 
 const SDL_Rect& Game::GetCamera() const

@@ -25,4 +25,8 @@ private:
 
 	int horizontalVelocity;
 	int verticalVelocity;
+
+	bool keydownPrimed;
+	bool animationFlag;
+	int animationSwapCooldown;
 };

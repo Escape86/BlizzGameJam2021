@@ -3,6 +3,7 @@
 
 #pragma region Forward Declarations
 class Player;
+class Map;
 #pragma endregion
 
 class Game
@@ -20,10 +21,13 @@ public:
 
 	const Player* GetPlayer() const;
 
+	const Map* GetMap() const;
+
 	const SDL_Rect& GetCamera() const;
 
 private:
 	Player* player;
+	Map* map;
 	
 	SDL_Rect camera;
 

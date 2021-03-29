@@ -1,5 +1,7 @@
 #include "Player.h"
 #include "Game.h"
+#include "Map.h"
+#include "MapTile.h"
 #include "Display.h"
 #include "Constants.h"
 
@@ -19,7 +21,13 @@ Player::Player(double spawnX, double spawnY, Direction initialFacing) : Object(s
 	this->spriteSheetOffsetX = 0;
 	this->spriteSheetOffsetY = 0;
 
+	this->animationFlag = false;
+	this->animationSwapCooldown = 0;
+
 	this->facing = initialFacing;
+
+	//prevent level switching from causing keyups to occur without a corresponding keydown
+	this->keydownPrimed = false;
 
 #if _DEBUG
 	debug_player_pos_text_id = Display::CreateText("(0,0)", 0, 288, Display::TWELVE, false);
@@ -43,10 +51,65 @@ void Player::InjectFrame(unsigned int elapsedGameTime, unsigned int previousFram
 
 	double startPosX = this->x;
 	double startPosY = this->y;
+	int startTileRow = static_cast<int>((this->y + (this->height / 2)) / TILE_HEIGHT);
+	int startTileColumn = static_cast<int>((this->x + (this->width / 2)) / TILE_WIDTH);
 
 	//update position
 	this->x += (this->horizontalVelocity * previousFrameTimeInSeconds);
 	this->y += (this->verticalVelocity * previousFrameTimeInSeconds);
+
+	//enforce screen bounds
+	int halfWidth = this->width / 2;
+	int halfHeight = this->height / 2;
+
+	const Game* game = Game::GetInstance();
+	const int mapWidth = game->GetMap()->GetColumnCount() * TILE_WIDTH;
+	const int mapHeight = game->GetMap()->GetRowCount() * TILE_HEIGHT;
+
+	if (this->x - halfWidth < 0)
+	{
+		this->x = halfWidth;
+	}
+	else if (this->x + halfWidth > mapWidth)
+	{
+		this->x = mapWidth - halfWidth;
+	}
+
+	if (this->y - halfHeight < 0)
+	{
+		this->y = halfHeight;
+	}
+	else if (this->y + halfHeight > mapHeight)
+	{
+		this->y = mapHeight - halfHeight;
+	}
+
+	//check if we're attempting to cross to a new tile that isn't walkable
+	int endTileRow = static_cast<int>((this->y + (this->height / 2)) / TILE_HEIGHT);
+	int endTileColumn = static_cast<int>((this->x + (this->width / 2)) / TILE_WIDTH);
+
+	if (startTileRow != endTileRow || startTileColumn != endTileColumn)
+	{
+		//we crossed into a new tile, check if it's walkable
+		const MapTile* tile = Game::GetInstance()->GetMap()->GetTileByWorldGridLocation(endTileRow, endTileColumn);
+		if (tile == nullptr || !tile->GetIsWalkable())
+		{
+			//not walkable, so move them back!
+			this->x = startPosX;
+			this->y = startPosY;
+		}
+	}
+
+	//animation
+	if (this->animationSwapCooldown <= 0)
+	{
+		animationFlag = !animationFlag;
+		this->animationSwapCooldown = PLAYER_ANIMATION_COOLDOWN;
+	}
+	else
+	{
+		this->animationSwapCooldown -= previousFrameTime;
+	}
 }
 
 void Player::Draw()
@@ -105,10 +168,15 @@ void Player::OnKeyDown(int key)
 		this->horizontalVelocity = PLAYER_VELOCITY;
 	else if (this->horizontalVelocity < -PLAYER_VELOCITY)
 		this->horizontalVelocity = -PLAYER_VELOCITY;
+
+	this->keydownPrimed = true;
 }
 
 void Player::OnKeyUp(int key)
 {
+	if (!this->keydownPrimed)
+		return;
+
 	switch (key)
 	{
 		case SDLK_w:
@@ -163,24 +231,48 @@ void Player::updateSpriteSheetOffsets()
 		switch (this->facing)
 		{
 		case Direction::UP:
+			if (animationFlag)
+			{
+				this->spriteSheetOffsetX = 0;
+				this->spriteSheetOffsetY = PLAYER_HEIGHT;
+			}
+			else
 			{
 				this->spriteSheetOffsetX = PLAYER_WIDTH;
 				this->spriteSheetOffsetY = PLAYER_HEIGHT;
 			}
 			break;
 		case Direction::DOWN:
+			if (animationFlag)
+			{
+				this->spriteSheetOffsetX = 0;
+				this->spriteSheetOffsetY = 0;
+			}
+			else
 			{
 				this->spriteSheetOffsetX = PLAYER_WIDTH;
 				this->spriteSheetOffsetY = 0;
 			}
 			break;
 		case Direction::LEFT:
+			if (animationFlag)
+			{
+				this->spriteSheetOffsetX = PLAYER_WIDTH * 2;
+				this->spriteSheetOffsetY = 0;
+			}
+			else
 			{
 				this->spriteSheetOffsetX = PLAYER_WIDTH * 2;
 				this->spriteSheetOffsetY = PLAYER_HEIGHT;
 			}
 			break;
 		case Direction::RIGHT:
+			if (animationFlag)
+			{
+				this->spriteSheetOffsetX = PLAYER_WIDTH;
+				this->spriteSheetOffsetY = PLAYER_HEIGHT * 2;
+			}
+			else
 			{
 				this->spriteSheetOffsetX = 0;
 				this->spriteSheetOffsetY = PLAYER_HEIGHT * 2;
@@ -189,7 +281,7 @@ void Player::updateSpriteSheetOffsets()
 
 		default:
 #if _DEBUG
-	assert(false);	//wtf direction is this?
+			assert(false);	//wtf direction is this?
 #endif
 			break;
 		}
@@ -200,25 +292,25 @@ void Player::updateSpriteSheetOffsets()
 		switch (this->facing)
 		{
 		case Direction::UP:
-				this->spriteSheetOffsetX = 0;
-				this->spriteSheetOffsetY = PLAYER_HEIGHT * 3;
+			this->spriteSheetOffsetX = 0;
+			this->spriteSheetOffsetY = PLAYER_HEIGHT * 3;
 			break;
 		case Direction::DOWN:
-				this->spriteSheetOffsetX = PLAYER_WIDTH * 2;
-				this->spriteSheetOffsetY = PLAYER_HEIGHT * 2;
+			this->spriteSheetOffsetX = PLAYER_WIDTH * 2;
+			this->spriteSheetOffsetY = PLAYER_HEIGHT * 2;
 			break;
 		case Direction::LEFT:
-				this->spriteSheetOffsetX = PLAYER_WIDTH * 2;
-				this->spriteSheetOffsetY = PLAYER_HEIGHT * 3;
+			this->spriteSheetOffsetX = PLAYER_WIDTH * 2;
+			this->spriteSheetOffsetY = PLAYER_HEIGHT * 3;
 			break;
 		case Direction::RIGHT:
-				this->spriteSheetOffsetX = PLAYER_WIDTH;
-				this->spriteSheetOffsetY = PLAYER_HEIGHT * 3;
+			this->spriteSheetOffsetX = PLAYER_WIDTH;
+			this->spriteSheetOffsetY = PLAYER_HEIGHT * 3;
 			break;
 
 		default:
 #if _DEBUG
-	assert(false);	//wtf direction is this?
+			assert(false);	//wtf direction is this?
 #endif
 			break;
 		}

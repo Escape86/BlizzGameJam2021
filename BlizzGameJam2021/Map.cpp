@@ -8,18 +8,25 @@
 	#include <assert.h>
 #endif
 
+#define DEFAULT_EMPTY_MAP_TILE_ID 853
+
 #pragma region Constructor
 
 Map::Map(const std::string& tileDataFilePath, const std::string& textureFilepath)
 {
 	this->tileDataFilePath = tileDataFilePath;
-	this->readDataFile(tileDataFilePath);
+
+	bool tileInitSuccess = MapTile::InitInteriorTileInfo();	//needs to happen before readDataFile below
+
+	bool readDataSuccess = this->readDataFile(tileDataFilePath);
 
 	this->texture = new Texture(textureFilepath);
 	bool loadSuccess = this->texture->Load();
 
 #if _DEBUG
+	assert(readDataSuccess);
 	assert(loadSuccess);
+	assert(tileInitSuccess);
 #endif
 }
 
@@ -86,12 +93,12 @@ const MapTile* Map::GetTileByWorldGridLocation(int row, int column) const
 
 #pragma region Private Methods
 
-void Map::readDataFile(const std::string& tileDatafilePath)
+bool Map::readDataFile(const std::string& tileDatafilePath)
 {
 	std::ifstream file(tileDatafilePath.c_str());
 
 	if (!file.is_open())
-		return;
+		return false;
 
 	this->rowCount = 0;
 	this->columnCount = 0;
@@ -112,6 +119,9 @@ void Map::readDataFile(const std::string& tileDatafilePath)
 		{
 			int id = atoi(token);
 			
+			if (id < 0)
+				id = DEFAULT_EMPTY_MAP_TILE_ID;
+
 			MapTile* tile = new MapTile(this->tileDataFilePath, id, this->rowCount, this->columnCount);
 			this->mapTiles.push_back(tile);
 
@@ -128,6 +138,8 @@ void Map::readDataFile(const std::string& tileDatafilePath)
 #if _DEBUG
 	assert(this->mapTiles.size() == (this->rowCount * this->columnCount));
 #endif
+
+	return true;
 }
 
 #pragma endregion

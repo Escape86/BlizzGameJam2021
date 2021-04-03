@@ -21,6 +21,8 @@ public:
 
 	static int GetMapIdByFileName(const std::string& filename);
 
+	static bool InitInteriorTileInfo();
+
 private:
 	int mapUniqueId;
 	const int id;

@@ -22,13 +22,13 @@ Game::Game()
 
 	//init player
 	this->player = new Player(0.0, 0.0, Direction::DOWN);
-	this->player->SetPosition(96, 888);
+	this->player->SetPosition(PLAYER_SPAWN_POSITION_X, PLAYER_SPAWN_POSITION_Y);
 
 	//init camera
 	this->camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 	//load initial map
-	this->map = new Map("../resources/western.csv", "../resources/western.png");
+	this->map = new Map(INTERIOR_MAP_DATA_FILEPATH, INTERIOR_MAP_TEXTURE_FILEPATH);
 
 	Game::_instance = this;
 }

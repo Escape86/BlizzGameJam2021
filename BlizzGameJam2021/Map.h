@@ -21,7 +21,7 @@ public:
 	const MapTile* GetTileByWorldGridLocation(int row, int column) const;
 
 private:
-	void readDataFile(const std::string& tileDatafilePath);
+	bool readDataFile(const std::string& tileDatafilePath);
 
 	std::string tileDataFilePath;
 	int rowCount;

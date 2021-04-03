@@ -3,6 +3,9 @@
 #pragma region Filepaths
 #define FONT_FILEPATH					"../resources/Fonts/Orbitron/Orbitron-Regular.ttf"
 #define PLAYER_TEXTURE_PATH				"../resources/player.png"
+#define INTERIOR_MAP_DATA_FILEPATH		"../resources/maps/starting_house_Base.csv"
+#define INTERIOR_MAP_TEXTURE_FILEPATH	"../resources/raou_interior_tptileset/top-down interior_v2.png"
+#define INTERIOR_MAP_WALKABLE_DATA_FILEPATH "../resources/interior_tileset_walkable.txt"
 #pragma endregion
 
 #pragma region Colors
@@ -18,11 +21,14 @@
 #define SCREEN_WIDTH					800
 #define SCREEN_HEIGHT					600
 
-#define TILE_WIDTH						24
-#define TILE_HEIGHT						24
+#define TILE_WIDTH						16
+#define TILE_HEIGHT						16
 
 #define PLAYER_WIDTH					24
 #define PLAYER_HEIGHT					24
+
+#define PLAYER_SPAWN_POSITION_X			250
+#define PLAYER_SPAWN_POSITION_Y			250
 
 #define PLAYER_VELOCITY					100
 #define PLAYER_ANIMATION_COOLDOWN		85

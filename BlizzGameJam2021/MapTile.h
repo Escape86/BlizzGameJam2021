@@ -12,7 +12,7 @@ public:
 	MapTile(const std::string& mapFileNameName, const int id, const int worldGridRow, const int worldGridColumn);
 	~MapTile();
 
-	void Draw(Texture* texture, int cameraShiftX, int cameraShiftY);
+	void Draw(Texture* texture, int cameraShiftX, int cameraShiftY) const;
 
 	int GetWorldGridRow() const;
 	int GetWorldGridColumn() const;

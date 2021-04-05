@@ -3,7 +3,9 @@
 #pragma region Filepaths
 #define FONT_FILEPATH					"../resources/Fonts/Orbitron/Orbitron-Regular.ttf"
 #define PLAYER_TEXTURE_PATH				"../resources/player.png"
-#define INTERIOR_MAP_DATA_FILEPATH		"../resources/maps/starting_house_Base.csv"
+#define INTERIOR_MAP_DATA_FILEPATH0		"../resources/maps/starting_house_Base.csv"
+#define INTERIOR_MAP_DATA_FILEPATH1		"../resources/maps/starting_house_Objects-low.csv"
+#define INTERIOR_MAP_DATA_FILEPATH2		"../resources/maps/starting_house_Objects-high.csv"
 #define INTERIOR_MAP_TEXTURE_FILEPATH	"../resources/raou_interior_tptileset/top-down interior_v2.png"
 #define INTERIOR_MAP_WALKABLE_DATA_FILEPATH "../resources/interior_tileset_walkable.txt"
 #pragma endregion

@@ -28,7 +28,8 @@ Game::Game()
 	this->camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 	//load initial map
-	this->map = new Map(INTERIOR_MAP_DATA_FILEPATH, INTERIOR_MAP_TEXTURE_FILEPATH);
+	std::vector<std::string> mapDataFilePaths = { INTERIOR_MAP_DATA_FILEPATH0, INTERIOR_MAP_DATA_FILEPATH1, INTERIOR_MAP_DATA_FILEPATH2 };
+	this->map = new Map(mapDataFilePaths, INTERIOR_MAP_TEXTURE_FILEPATH);
 
 	Game::_instance = this;
 }

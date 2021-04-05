@@ -63,8 +63,9 @@ void Player::InjectFrame(unsigned int elapsedGameTime, unsigned int previousFram
 	int halfHeight = this->height / 2;
 
 	const Game* game = Game::GetInstance();
-	const int mapWidth = game->GetMap()->GetColumnCount() * TILE_WIDTH;
-	const int mapHeight = game->GetMap()->GetRowCount() * TILE_HEIGHT;
+	const Map* map = game->GetMap();
+	const int mapWidth = map->GetColumnCount() * TILE_WIDTH;
+	const int mapHeight = map->GetRowCount() * TILE_HEIGHT;
 
 	if (this->x - halfWidth < 0)
 	{
@@ -91,12 +92,18 @@ void Player::InjectFrame(unsigned int elapsedGameTime, unsigned int previousFram
 	if (startTileRow != endTileRow || startTileColumn != endTileColumn)
 	{
 		//we crossed into a new tile, check if it's walkable
-		const MapTile* tile = Game::GetInstance()->GetMap()->GetTileByWorldGridLocation(endTileRow, endTileColumn);
-		if (tile == nullptr || !tile->GetIsWalkable())
+		const int numberOfMapLayers = map->GetNumberOfLayers();
+		for (int layer = 0; layer < numberOfMapLayers; layer++)
 		{
-			//not walkable, so move them back!
-			this->x = startPosX;
-			this->y = startPosY;
+			//each layer of the map has different walkable data so have to check each layer
+			const MapTile* tile = map->GetTileByWorldGridLocation(endTileRow, endTileColumn, layer);
+			if (tile == nullptr || !tile->GetIsWalkable())
+			{
+				//not walkable, so move them back!
+				this->x = startPosX;
+				this->y = startPosY;
+				break;
+			}
 		}
 	}
 

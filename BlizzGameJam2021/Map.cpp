@@ -12,19 +12,25 @@
 
 #pragma region Constructor
 
-Map::Map(const std::string& tileDataFilePath, const std::string& textureFilepath)
+Map::Map(const std::vector<std::string>& tileDataFilePathsByLayer, const std::string& textureFilepath)
 {
-	this->tileDataFilePath = tileDataFilePath;
-
 	bool tileInitSuccess = MapTile::InitInteriorTileInfo();	//needs to happen before readDataFile below
 
-	bool readDataSuccess = this->readDataFile(tileDataFilePath);
+	const int numberOfLayers = tileDataFilePathsByLayer.size();
+	for (int layer = 0; layer < numberOfLayers; layer++)
+	{
+		const std::string& filepath = tileDataFilePathsByLayer.at(layer);
+		bool readDataSuccess = this->readDataFile(filepath, layer);
+
+#if _DEBUG
+		assert(readDataSuccess);
+#endif
+	}
 
 	this->texture = new Texture(textureFilepath);
 	bool loadSuccess = this->texture->Load();
 
 #if _DEBUG
-	assert(readDataSuccess);
 	assert(loadSuccess);
 	assert(tileInitSuccess);
 #endif
@@ -36,11 +42,18 @@ Map::Map(const std::string& tileDataFilePath, const std::string& textureFilepath
 
 Map::~Map()
 {
-	for (MapTile* tile : this->mapTiles)
+	for (std::pair<int, std::vector<MapTile*>> mapLayer : this->mapTilesByLayer)
 	{
-		delete tile;
+		std::vector<MapTile*>& mapTiles = mapLayer.second;
+
+		for (MapTile* tile : mapTiles)
+		{
+			delete tile;
+			tile = nullptr;
+		}
+		mapTiles.clear();
 	}
-	this->mapTiles.clear();
+	this->mapTilesByLayer.clear();
 
 	if (this->texture)
 	{
@@ -49,18 +62,23 @@ Map::~Map()
 	}
 }
 
-void Map::Draw(int cameraShiftX, int cameraShiftY)
+void Map::Draw(int cameraShiftX, int cameraShiftY) const
 {
 #if _DEBUG
 	assert(this->rowCount > 0);
 	assert(this->columnCount > 0);
-	assert(this->mapTiles.size() > 0);
+	assert(this->mapTilesByLayer.size() > 0);
 	assert(this->texture);
 #endif
 
-	for (MapTile* tile : this->mapTiles)
+	for (std::pair<int, std::vector<MapTile*>> mapLayer : this->mapTilesByLayer)
 	{
-		tile->Draw(this->texture, cameraShiftX, cameraShiftY);
+		const std::vector<MapTile*>& mapTiles = mapLayer.second;
+
+		for (const MapTile* tile : mapTiles)
+		{
+			tile->Draw(this->texture, cameraShiftX, cameraShiftY);
+		}
 	}
 }
 
@@ -74,9 +92,18 @@ int Map::GetColumnCount() const
 	return this->columnCount;
 }
 
-const MapTile* Map::GetTileByWorldGridLocation(int row, int column) const
+int Map::GetNumberOfLayers() const
 {
-	for (const MapTile* tile : this->mapTiles)
+	return this->mapTilesByLayer.size();
+}
+
+const MapTile* Map::GetTileByWorldGridLocation(int row, int column, int layer) const
+{
+#if _DEBUG
+	assert(layer >= 0 && layer < this->mapTilesByLayer.size());
+#endif
+
+	for (const MapTile* tile : this->mapTilesByLayer.at(layer))
 	{
 		if (tile->GetWorldGridRow() == row && tile->GetWorldGridColumn() == column)
 			return tile;
@@ -93,15 +120,16 @@ const MapTile* Map::GetTileByWorldGridLocation(int row, int column) const
 
 #pragma region Private Methods
 
-bool Map::readDataFile(const std::string& tileDatafilePath)
+bool Map::readDataFile(const std::string& tileDataFilepath, int layer)
 {
-	std::ifstream file(tileDatafilePath.c_str());
+	std::ifstream file(tileDataFilepath.c_str());
 
 	if (!file.is_open())
 		return false;
 
-	this->rowCount = 0;
-	this->columnCount = 0;
+	int fileRowCount = 0;
+	int fileColumnCount = 0;
+	std::vector<MapTile*> mapTiles;
 
 	std::string line;
 	while (std::getline(file, line))
@@ -109,7 +137,7 @@ bool Map::readDataFile(const std::string& tileDatafilePath)
 		if (line.length() == 0)
 			continue;
 
-		this->columnCount = 0;
+		fileColumnCount = 0;
 
 		char* l = _strdup(line.c_str());
 
@@ -122,22 +150,46 @@ bool Map::readDataFile(const std::string& tileDatafilePath)
 			if (id < 0)
 				id = DEFAULT_EMPTY_MAP_TILE_ID;
 
-			MapTile* tile = new MapTile(this->tileDataFilePath, id, this->rowCount, this->columnCount);
-			this->mapTiles.push_back(tile);
+			MapTile* tile = new MapTile(tileDataFilepath, id, fileRowCount, fileColumnCount);
+			mapTiles.push_back(tile);
 
 			token = strtok_s(NULL, ",", &context);
-			this->columnCount++;
+			fileColumnCount++;
 		}
 
 		free(l);
-		this->rowCount++;
+		fileRowCount++;
 	}
 
 	file.close();
 
 #if _DEBUG
-	assert(this->mapTiles.size() == (this->rowCount * this->columnCount));
+	assert(mapTiles.size() == (fileRowCount * fileColumnCount));
 #endif
+
+	if (this->rowCount == 0)
+	{
+		this->rowCount = fileRowCount;
+	}
+	else
+	{
+#if _DEBUG
+		assert(this->rowCount == fileRowCount);
+#endif
+	}
+
+	if (this->columnCount == 0)
+	{
+		this->columnCount = fileColumnCount;
+	}
+	else
+	{
+#if _DEBUG
+		assert(this->columnCount == fileColumnCount);
+#endif
+	}
+
+	this->mapTilesByLayer.insert(std::make_pair(layer, mapTiles));
 
 	return true;
 }

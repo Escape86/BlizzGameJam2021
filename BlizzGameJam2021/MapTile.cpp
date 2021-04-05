@@ -61,7 +61,9 @@ bool MapTile::InitInteriorTileInfo()
 
 const std::map<std::string, int> mapFileNameToMapUniqueIDLookup
 {
-	{ INTERIOR_MAP_DATA_FILEPATH, 0 },
+	{ INTERIOR_MAP_DATA_FILEPATH0, 0 },
+	{ INTERIOR_MAP_DATA_FILEPATH1, 0 },
+	{ INTERIOR_MAP_DATA_FILEPATH2, 0 },
 };
 
 const std::map<int, const std::map<int, TileInfo>&> mapFileNameToTileIdToInfoLookup
@@ -88,7 +90,7 @@ MapTile::~MapTile()
 	
 }
 
-void MapTile::Draw(Texture* texture, int cameraShiftX, int cameraShiftY)
+void MapTile::Draw(Texture* texture, int cameraShiftX, int cameraShiftY) const
 {
 	Display::QueueTextureForRendering(texture, (this->worldGridColumn * TILE_WIDTH) - (TILE_WIDTH / 2) - cameraShiftX, (this->worldGridRow * TILE_HEIGHT) - (TILE_HEIGHT / 2) - cameraShiftY, TILE_WIDTH, TILE_HEIGHT, false, true, mapFileNameToTileIdToInfoLookup.at(this->mapUniqueId).at(this->id).spriteSheetColumnOffset * TILE_WIDTH, mapFileNameToTileIdToInfoLookup.at(this->mapUniqueId).at(this->id).spriteSheetRowOffset * TILE_HEIGHT);
 }

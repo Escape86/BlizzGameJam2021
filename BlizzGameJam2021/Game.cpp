@@ -31,7 +31,7 @@ Game::Game()
 
 	//load initial map
 	std::vector<std::string> mapDataFilePaths = { STARTING_HOUSE_MAP_DATA_FILEPATH0, STARTING_HOUSE_MAP_DATA_FILEPATH1, STARTING_HOUSE_MAP_DATA_FILEPATH2 };
-	this->SwitchMap(mapDataFilePaths, INTERIOR_TILESET_TEXTURE_FILEPATH, STARTING_HOUSE_MAP_TELEPORTERS_FILEPATH);
+	this->SwitchMap(mapDataFilePaths, INTERIOR_TILESET_TEXTURE_FILEPATH, STARTING_HOUSE_MAP_TELEPORTERS_FILEPATH, STARTING_HOUSE_MAP_SPAWNS_FILEPATH);
 
 	Game::_instance = this;
 }
@@ -72,7 +72,7 @@ void Game::InjectFrame()
 	if (this->mapSwitchRequested)
 	{
 		const Destination& destination = this->destinationMapSwitch;
-		if (this->SwitchMap(destination.destinationMapFilePathsByLayer, destination.destinationMapTextureFilePath, destination.destinationTeleportersFilePath))
+		if (this->SwitchMap(destination.destinationMapFilePathsByLayer, destination.destinationMapTextureFilePath, destination.destinationTeleportersFilePath, destination.destinationSpawnsFilePath))
 		{
 			//move player to requested location in new map
 			this->player->SetPosition(destination.destinationX, destination.destinationY);
@@ -94,6 +94,12 @@ void Game::InjectFrame()
 			this->destinationMapSwitch = tp.GetDestination();
 			this->mapSwitchRequested = true;
 		}
+	}
+
+	//update any spawns
+	for (Spawn& spawn : this->spawns)
+	{
+		spawn.InjectFrame(elapsedTimeInMilliseconds, previousFrameTime);
 	}
 
 	//center the camera over the player
@@ -123,6 +129,11 @@ void Game::InjectFrame()
 	//now that updates are done, draw the frame
 	this->map->Draw(camera.x, camera.y);
 	this->player->Draw();
+	
+	for (Spawn& spawn : this->spawns)
+	{
+		spawn.Draw();
+	}
 
 	//end of frame
 	this->previousFrameEndTime = elapsedTimeInMilliseconds;
@@ -192,7 +203,7 @@ void Game::InjectControllerStickMovement(unsigned char axis, short value)
 	}
 }
 
-bool Game::SwitchMap(const std::vector<std::string>& mapFilePathsByLayer, const std::string& mapTextureFilePath, const std::string& teleportersFilePath)
+bool Game::SwitchMap(const std::vector<std::string>& mapFilePathsByLayer, const std::string& mapTextureFilePath, const std::string& teleportersFilePath, const std::string& spawnsFilePath)
 {
 	//nuke any existing map stuff we have loaded so we can make a fresh start (and not leak memory)
 	this->cleanUpGameObjects();
@@ -209,6 +220,15 @@ bool Game::SwitchMap(const std::vector<std::string>& mapFilePathsByLayer, const 
 #endif
 
 	if (!loadTeleportersResult)
+		return false;
+
+	bool loadSpawnsResult = this->loadSpawns(spawnsFilePath);
+
+#if _DEBUG
+	assert(loadSpawnsResult);
+#endif
+
+	if (!loadSpawnsResult)
 		return false;
 
 	return true;
@@ -236,6 +256,7 @@ const SDL_Rect& Game::GetCamera() const
 void Game::cleanUpGameObjects()
 {
 	this->teleporters.clear();
+	this->spawns.clear();
 
 	if (this->map)
 	{
@@ -270,6 +291,7 @@ bool Game::loadTeleporters(const std::string& filepath)
 		char* destinationMapFilePathToken = strtok_s(nullptr, ";", &context);
 		char* destinationMapTextureFilePathToken = strtok_s(nullptr, ";", &context);
 		char* destinationTeleportersFilePathToken = strtok_s(nullptr, ";", &context);
+		char* destinationSpawnsFilePathToken = strtok_s(nullptr, ";", &context);
 		char* destinationXToken = strtok_s(nullptr, ";", &context);
 		char* destinationYToken = strtok_s(nullptr, ";", &context);
 
@@ -278,6 +300,7 @@ bool Game::loadTeleporters(const std::string& filepath)
 			(destinationMapFilePathToken == nullptr) ||
 			(destinationMapTextureFilePathToken == nullptr) ||
 			(destinationTeleportersFilePathToken == nullptr) ||
+			(destinationSpawnsFilePathToken == nullptr) ||
 			(destinationXToken == nullptr) ||
 			(destinationYToken == nullptr))
 			return false;
@@ -287,6 +310,7 @@ bool Game::loadTeleporters(const std::string& filepath)
 		std::string destinationMapFilePathsAsString = destinationMapFilePathToken;
 		std::string destinationMapTextureFilePath = destinationMapTextureFilePathToken;
 		std::string destinationTeleportersFilePath = destinationTeleportersFilePathToken;
+		std::string destinationSpawnsFilePath = destinationSpawnsFilePathToken;
 		int destinationX = atoi(destinationXToken);
 		int destinationY = atoi(destinationYToken);
 
@@ -307,6 +331,12 @@ bool Game::loadTeleporters(const std::string& filepath)
 			destinationTeleportersFilePath.erase(destinationTeleportersFilePath.begin());
 		while (destinationTeleportersFilePath.size() && isspace(destinationTeleportersFilePath.back()))	//back
 			destinationTeleportersFilePath.pop_back();
+
+		//clear whitespace from destinationSpawnsFilePath
+		while (destinationSpawnsFilePath.size() && isspace(destinationSpawnsFilePath.front()))	//front
+			destinationSpawnsFilePath.erase(destinationSpawnsFilePath.begin());
+		while (destinationSpawnsFilePath.size() && isspace(destinationSpawnsFilePath.back()))	//back
+			destinationSpawnsFilePath.pop_back();
 
 		//split destinationMapFilePathsAsString in individual strings
 		std::vector<std::string> destinationMapFilePaths;
@@ -339,7 +369,73 @@ bool Game::loadTeleporters(const std::string& filepath)
 		}
 
 		//all done, build our teleporter and add it to the set
-		this->teleporters.emplace_back(xPos, yPos, TELEPORTER_WIDTH, TELEPORTER_HEIGHT, destinationMapFilePaths, destinationMapTextureFilePath, destinationTeleportersFilePath, destinationX, destinationY);
+		this->teleporters.emplace_back(xPos, yPos, TELEPORTER_WIDTH, TELEPORTER_HEIGHT, destinationMapFilePaths, destinationMapTextureFilePath, destinationTeleportersFilePath, destinationSpawnsFilePath, destinationX, destinationY);
+
+		free(l);
+	}
+
+	file.close();
+
+	return true;
+}
+
+bool Game::loadSpawns(const std::string& filepath)
+{
+	std::ifstream file(filepath.c_str());
+
+	if (!file.is_open())
+		return false;
+
+	std::string line;
+	while (std::getline(file, line))
+	{
+		if (line.length() < 2)
+			continue;
+
+		//skip comment lines
+		if (line[0] == '-' && line[1] == '-')
+			continue;
+
+		char* l = _strdup(line.c_str());
+
+		char* context = NULL;
+
+		char* idToken = strtok_s(l, ",", &context);
+		char* spawnXToken = strtok_s(NULL, ",", &context);
+		char* spawnYToken = strtok_s(NULL, ",", &context);
+		char* widthToken = strtok_s(NULL, ",", &context);
+		char* heightToken = strtok_s(NULL, ",", &context);
+		char* texturePathToken = strtok_s(NULL, ",", &context);
+		char* spriteOffsetXToken = strtok_s(NULL, ",", &context);
+		char* spriteOffsetYToken = strtok_s(NULL, ",", &context);
+
+		if ((idToken == NULL) ||
+			(spawnXToken == NULL) ||
+			(spawnYToken == NULL) ||
+			(widthToken == NULL) ||
+			(heightToken == NULL) ||
+			(texturePathToken == NULL) ||
+			(spriteOffsetXToken == NULL) ||
+			(spriteOffsetYToken == NULL))
+			return false;
+
+		int id = atoi(idToken);
+		double spawnX = atof(spawnXToken);
+		double spawnY = atof(spawnYToken);
+		int width = atoi(widthToken);
+		int height = atoi(heightToken);
+		std::string texturePath = texturePathToken;
+		int spriteOffsetX = atoi(spriteOffsetXToken);
+		int spriteOffsetY = atoi(spriteOffsetYToken);
+
+		//clear whitespace from texturePath
+		while (texturePath.size() && isspace(texturePath.front()))	//front
+			texturePath.erase(texturePath.begin());
+		while (texturePath.size() && isspace(texturePath.back()))	//back
+			texturePath.pop_back();
+
+		//create the spawn
+		this->spawns.emplace_back(id, spawnX, spawnY, width, height, texturePath, spriteOffsetX, spriteOffsetY);
 
 		free(l);
 	}

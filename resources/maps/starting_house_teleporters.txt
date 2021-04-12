@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- XPos, YPos, DestinationMapFilePath, DestinationMapTextureFilePath, DestinationSpawnsFilePath, DestinationTeleportersFilePath, DestinationX, DestinationY	--
+-- XPos, YPos, DestinationMapFilePath, DestinationMapTextureFilePath, DestinationTeleportersFilePath, DestinationSpawnsFilePath, DestinationX, DestinationY	--
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 --exit door of house
-240; 307; ../resources/maps/test_building_Base.csv, ../resources/maps/test_building_Objects-low.csv, ../resources/maps/test_building_Objects-high.csv; ../resources/raou_interior_tptileset/top-down_interior_v2.png; ../resources/maps/test_building_teleporters.txt; 360; 336;
+240; 307; ../resources/maps/test_building_Base.csv, ../resources/maps/test_building_Objects-low.csv, ../resources/maps/test_building_Objects-high.csv; ../resources/raou_interior_tptileset/top-down_interior_v2.png; ../resources/maps/test_building_teleporters.txt;../resources/maps/test_building_spawns.txt; 360; 336;

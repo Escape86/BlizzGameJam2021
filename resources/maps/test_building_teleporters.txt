@@ -1,4 +1,4 @@
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- XPos, YPos, DestinationMapFilePath, DestinationMapTextureFilePath, DestinationSpawnsFilePath, DestinationTeleportersFilePath, DestinationX, DestinationY	--
+-- XPos, YPos, DestinationMapFilePath, DestinationMapTextureFilePath, DestinationTeleportersFilePath, DestinationSpawnsFilePath, DestinationX, DestinationY	--
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

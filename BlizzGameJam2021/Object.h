@@ -46,7 +46,7 @@ protected:
 	const int width;
 	const int height;
 	Direction facing;
-	Texture* texture;
+	Texture* texture = nullptr;
 	int spriteSheetOffsetX;
 	int spriteSheetOffsetY;
 };

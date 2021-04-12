@@ -7,7 +7,7 @@
 
 #pragma region Constructor
 
-Teleporter::Teleporter(int x, int y, int width, int height, const std::vector<std::string>& destinationMapFilePathsByLayer, const std::string& destinationMapTextureFilePath, const std::string& destinationTeleportersFilePath, int destinationX, int destinationY)
+Teleporter::Teleporter(int x, int y, int width, int height, const std::vector<std::string>& destinationMapFilePathsByLayer, const std::string& destinationMapTextureFilePath, const std::string& destinationTeleportersFilePath, const std::string& destinationSpawnsFilePath, int destinationX, int destinationY)
 {
 	this->x = x;
 	this->y = y;
@@ -18,6 +18,7 @@ Teleporter::Teleporter(int x, int y, int width, int height, const std::vector<st
 		destinationMapFilePathsByLayer,
 		destinationMapTextureFilePath,
 		destinationTeleportersFilePath,
+		destinationSpawnsFilePath,
 		destinationX,
 		destinationY
 	};

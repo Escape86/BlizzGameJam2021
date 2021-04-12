@@ -1,6 +1,7 @@
 #pragma once
 #include "SDL_rect.h"
 #include "Teleporter.h"
+#include "Spawn.h"
 #include <vector>
 #include <string>
 
@@ -22,7 +23,7 @@ public:
 	void InjectKeyUp(int key);
 	void InjectControllerStickMovement(unsigned char axis, short value);
 
-	bool SwitchMap(const std::vector<std::string>& mapFilePathsByLayer, const std::string& mapTextureFilePath, const std::string& teleportersFilePath);
+	bool SwitchMap(const std::vector<std::string>& mapFilePathsByLayer, const std::string& mapTextureFilePath, const std::string& teleportersFilePath, const std::string& spawnsFilePath);
 
 	const Player* GetPlayer() const;
 
@@ -34,12 +35,14 @@ private:
 
 	void cleanUpGameObjects();
 	bool loadTeleporters(const std::string& filepath);
+	bool loadSpawns(const std::string& filepath);
 
 	Player* player;
 	Map* map;
 	
 	SDL_Rect camera;
 
+	std::vector<Spawn> spawns;
 	std::vector<Teleporter> teleporters;
 
 	Destination destinationMapSwitch;

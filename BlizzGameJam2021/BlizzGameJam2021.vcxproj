@@ -110,6 +110,7 @@ COPY "$(SDL_MIXER_HOME)\lib\x86\*.dll" "$(SolutionDir)$(Configuration)"</Command
     <ClCompile Include="MapTile.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Spawn.cpp" />
     <ClCompile Include="Teleporter.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
@@ -122,6 +123,7 @@ COPY "$(SDL_MIXER_HOME)\lib\x86\*.dll" "$(SolutionDir)$(Configuration)"</Command
     <ClInclude Include="MapTile.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Spawn.h" />
     <ClInclude Include="Teleporter.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>

@@ -11,11 +11,14 @@
 
 #pragma region Constructor
 
-Spawn::Spawn(int id, double spawnX, double spawnY, int width, int height, const std::string& texturePath, int spriteSheetOffsetX, int spriteSheetOffsetY)
+Spawn::Spawn(int id, double spawnX, double spawnY, int width, int height, const std::string& texturePath, int spriteSheetOffsetX, int spriteSheetOffsetY, bool shouldIdleMove)
 	: Object(spawnX, spawnY, width, height, texturePath), id(id)
 {
 	this->spriteSheetOffsetX = spriteSheetOffsetX;
 	this->spriteSheetOffsetY = spriteSheetOffsetY;
+	this->shouldIdleMove = shouldIdleMove;
+	this->idleMoveCooldown = 0;
+	this->idleDirection = Direction::NONE;
 }
 
 #pragma endregion
@@ -34,6 +37,66 @@ void Spawn::InjectFrame(unsigned int elapsedGameTime, unsigned int previousFrame
 	int startTileColumn = static_cast<int>((this->x - (this->width / 2)) / TILE_WIDTH);
 
 	bool didMoveThisFrame = false;
+
+	if (this->shouldIdleMove)
+	{
+		if (this->idleMoveCooldown <= 0)
+		{
+			/* generate secret number between 0 and 4 (0 = no move, and 1-4 for each axis: */
+			int direction = rand() % 5;
+
+			switch (direction)
+			{
+			case 0: this->idleDirection = Direction::NONE;	break;
+			case 1:	this->idleDirection = Direction::UP;	break;
+			case 2:	this->idleDirection = Direction::DOWN;	break;
+			case 3:	this->idleDirection = Direction::LEFT;	break;
+			case 4:	this->idleDirection = Direction::RIGHT;	break;
+			default:
+#if _DEBUG
+				assert(false);	//we should never hit here!
+#endif
+				break;
+			}
+
+			//reset idle movement cooldown
+			this->idleMoveCooldown = NPC_IDLEMOVEMENT_COOLDOWN;
+		}
+		else
+		{
+			float previousFrameTimeInSeconds = (previousFrameTime / 1000.0f);
+
+			switch (this->idleDirection)
+			{
+			case Direction::NONE:
+				//do nothing
+				break;
+			case Direction::UP:
+				this->y -= NPC_VELOCITY * previousFrameTimeInSeconds;
+				didMoveThisFrame = true;
+				break;
+			case Direction::DOWN:
+				this->y += NPC_VELOCITY * previousFrameTimeInSeconds;
+				didMoveThisFrame = true;
+				break;
+			case Direction::LEFT:
+				this->x -= NPC_VELOCITY * previousFrameTimeInSeconds;
+				didMoveThisFrame = true;
+				break;
+			case Direction::RIGHT:
+				this->x += NPC_VELOCITY * previousFrameTimeInSeconds;
+				didMoveThisFrame = true;
+				break;
+			default:
+#if _DEBUG
+				assert(false);	//we should never hit here!
+#endif
+				break;
+			}
+
+			this->idleMoveCooldown -= previousFrameTime;
+		}
+	}
 
 	if (didMoveThisFrame)
 	{

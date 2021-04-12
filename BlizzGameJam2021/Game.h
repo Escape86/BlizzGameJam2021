@@ -2,6 +2,7 @@
 #include "SDL_rect.h"
 #include "Teleporter.h"
 #include "Spawn.h"
+#include "Enemy.h"
 #include <vector>
 #include <string>
 
@@ -43,6 +44,7 @@ private:
 	SDL_Rect camera;
 
 	std::vector<Spawn> spawns;
+	std::vector<Enemy> enemies;
 	std::vector<Teleporter> teleporters;
 
 	Destination destinationMapSwitch;

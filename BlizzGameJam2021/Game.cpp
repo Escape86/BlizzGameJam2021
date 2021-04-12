@@ -6,6 +6,7 @@
 #include "SDL_timer.h"
 #include "SDL_keycode.h"
 #include <fstream>
+#include <algorithm>
 
 #if _DEBUG
 	#include <assert.h>
@@ -96,10 +97,16 @@ void Game::InjectFrame()
 		}
 	}
 
-	//update any spawns
+	//update spawns
 	for (Spawn& spawn : this->spawns)
 	{
 		spawn.InjectFrame(elapsedTimeInMilliseconds, previousFrameTime);
+	}
+
+	//update enemies
+	for (Enemy& enemy : this->enemies)
+	{
+		enemy.InjectFrame(elapsedTimeInMilliseconds, previousFrameTime);
 	}
 
 	//center the camera over the player
@@ -133,6 +140,11 @@ void Game::InjectFrame()
 	for (Spawn& spawn : this->spawns)
 	{
 		spawn.Draw();
+	}
+
+	for (Enemy& enemy: this->enemies)
+	{
+		enemy.Draw();
 	}
 
 	//end of frame
@@ -257,6 +269,7 @@ void Game::cleanUpGameObjects()
 {
 	this->teleporters.clear();
 	this->spawns.clear();
+	this->enemies.clear();
 
 	if (this->map)
 	{
@@ -408,6 +421,8 @@ bool Game::loadSpawns(const std::string& filepath)
 		char* texturePathToken = strtok_s(NULL, ",", &context);
 		char* spriteOffsetXToken = strtok_s(NULL, ",", &context);
 		char* spriteOffsetYToken = strtok_s(NULL, ",", &context);
+		char* shouldIdleMoveToken = strtok_s(NULL, ",", &context);
+		char* isEnemyToken = strtok_s(NULL, ",", &context);
 
 		if ((idToken == NULL) ||
 			(spawnXToken == NULL) ||
@@ -416,7 +431,9 @@ bool Game::loadSpawns(const std::string& filepath)
 			(heightToken == NULL) ||
 			(texturePathToken == NULL) ||
 			(spriteOffsetXToken == NULL) ||
-			(spriteOffsetYToken == NULL))
+			(spriteOffsetYToken == NULL) ||
+			(shouldIdleMoveToken == NULL) ||
+			(isEnemyToken == NULL))
 			return false;
 
 		int id = atoi(idToken);
@@ -428,14 +445,39 @@ bool Game::loadSpawns(const std::string& filepath)
 		int spriteOffsetX = atoi(spriteOffsetXToken);
 		int spriteOffsetY = atoi(spriteOffsetYToken);
 
+		std::string shouldIdleMoveAsString(shouldIdleMoveToken);
+		//clear whitespace from shouldIdleMoveAsString
+		while (shouldIdleMoveAsString.size() && isspace(shouldIdleMoveAsString.front()))	//front
+			shouldIdleMoveAsString.erase(shouldIdleMoveAsString.begin());
+		while (shouldIdleMoveAsString.size() && isspace(shouldIdleMoveAsString.back()))	//back
+			shouldIdleMoveAsString.pop_back();
+		std::transform(shouldIdleMoveAsString.begin(), shouldIdleMoveAsString.end(), shouldIdleMoveAsString.begin(), ::tolower);
+		bool shouldIdleMove = shouldIdleMoveAsString.compare("true") == 0;
+
+		std::string isEnemyAsString(isEnemyToken);
+		//clear whitespace from isEnemyAsString
+		while (isEnemyAsString.size() && isspace(isEnemyAsString.front()))	//front
+			isEnemyAsString.erase(isEnemyAsString.begin());
+		while (isEnemyAsString.size() && isspace(isEnemyAsString.back()))	//back
+			isEnemyAsString.pop_back();
+		std::transform(isEnemyAsString.begin(), isEnemyAsString.end(), isEnemyAsString.begin(), ::tolower);
+		bool isEnemy = isEnemyAsString.compare("true") == 0;
+
 		//clear whitespace from texturePath
 		while (texturePath.size() && isspace(texturePath.front()))	//front
 			texturePath.erase(texturePath.begin());
 		while (texturePath.size() && isspace(texturePath.back()))	//back
 			texturePath.pop_back();
 
-		//create the spawn
-		this->spawns.emplace_back(id, spawnX, spawnY, width, height, texturePath, spriteOffsetX, spriteOffsetY);
+		//create it
+		if (isEnemy)
+		{
+			this->enemies.emplace_back(id, spawnX, spawnY, width, height, texturePath, spriteOffsetX, spriteOffsetY, shouldIdleMove);
+		}
+		else
+		{
+			this->spawns.emplace_back(id, spawnX, spawnY, width, height, texturePath, spriteOffsetX, spriteOffsetY, shouldIdleMove);
+		}
 
 		free(l);
 	}

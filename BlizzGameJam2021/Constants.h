@@ -44,6 +44,15 @@
 
 #define PLAYER_VELOCITY					100
 #define PLAYER_ANIMATION_COOLDOWN		85
+#define NPC_VELOCITY					50
+#define NPC_IDLEMOVEMENT_COOLDOWN		1200	//in milliseconds
+
+#define ENEMY_VELOCITY					50
+
+#define PLAYER_MAX_HP					6
+#define ENEMY_HP						3
+
+#define ATTACK_RECOIL_AMOUNT			45
 
 #define JOYSTICK_DEAD_ZONE				8000
 

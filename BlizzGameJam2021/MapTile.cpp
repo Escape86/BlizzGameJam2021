@@ -21,7 +21,7 @@ bool MapTile::InitInteriorTileInfo()
 {
 	//read info from file
 	std::fstream file;
-	file.open(INTERIOR_MAP_WALKABLE_DATA_FILEPATH, std::ios::in);
+	file.open(INTERIOR_TILESET_WALKABLE_DATA_FILEPATH, std::ios::in);
 	
 	if (!file.is_open())
 		return false;
@@ -61,14 +61,19 @@ bool MapTile::InitInteriorTileInfo()
 
 const std::map<std::string, int> mapFileNameToMapUniqueIDLookup
 {
-	{ INTERIOR_MAP_DATA_FILEPATH0, 0 },
-	{ INTERIOR_MAP_DATA_FILEPATH1, 0 },
-	{ INTERIOR_MAP_DATA_FILEPATH2, 0 },
+	{ STARTING_HOUSE_MAP_DATA_FILEPATH0, 0 },
+	{ STARTING_HOUSE_MAP_DATA_FILEPATH1, 0 },
+	{ STARTING_HOUSE_MAP_DATA_FILEPATH2, 0 },
+
+	{ TEST_BUILDING_MAP_DATA_FILEPATH0, 1 },
+	{ TEST_BUILDING_MAP_DATA_FILEPATH1, 1 },
+	{ TEST_BUILDING_MAP_DATA_FILEPATH2, 1 },
 };
 
 const std::map<int, const std::map<int, TileInfo>&> mapFileNameToTileIdToInfoLookup
 {
 	{ 0, interiorTileIdToInfoLookup },
+	{ 1, interiorTileIdToInfoLookup },
 };
 
 #pragma region Constructor

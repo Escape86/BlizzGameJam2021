@@ -182,6 +182,16 @@ double Object::GetPositionY() const
 	return this->y;
 }
 
+int Object::GetWidth() const
+{
+	return this->width;
+}
+
+int Object::GetHeight() const
+{
+	return this->height;
+}
+
 void Object::SetPosition(double x, double y)
 {
 	this->x = x;

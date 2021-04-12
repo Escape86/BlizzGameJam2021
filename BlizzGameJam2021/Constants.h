@@ -1,13 +1,18 @@
 #pragma once
 
 #pragma region Filepaths
-#define FONT_FILEPATH					"../resources/Fonts/Orbitron/Orbitron-Regular.ttf"
-#define PLAYER_TEXTURE_PATH				"../resources/player.png"
-#define INTERIOR_MAP_DATA_FILEPATH0		"../resources/maps/starting_house_Base.csv"
-#define INTERIOR_MAP_DATA_FILEPATH1		"../resources/maps/starting_house_Objects-low.csv"
-#define INTERIOR_MAP_DATA_FILEPATH2		"../resources/maps/starting_house_Objects-high.csv"
-#define INTERIOR_MAP_TEXTURE_FILEPATH	"../resources/raou_interior_tptileset/top-down interior_v2.png"
-#define INTERIOR_MAP_WALKABLE_DATA_FILEPATH "../resources/interior_tileset_walkable.txt"
+#define FONT_FILEPATH								"../resources/Fonts/Orbitron/Orbitron-Regular.ttf"
+#define PLAYER_TEXTURE_PATH							"../resources/player.png"
+#define STARTING_HOUSE_MAP_DATA_FILEPATH0			"../resources/maps/starting_house_Base.csv"
+#define STARTING_HOUSE_MAP_DATA_FILEPATH1			"../resources/maps/starting_house_Objects-low.csv"
+#define STARTING_HOUSE_MAP_DATA_FILEPATH2			"../resources/maps/starting_house_Objects-high.csv"
+#define STARTING_HOUSE_MAP_TELEPORTERS_FILEPATH		"../resources/maps/starting_house_teleporters.txt"
+#define INTERIOR_TILESET_WALKABLE_DATA_FILEPATH		"../resources/interior_tileset_walkable.txt"
+#define INTERIOR_TILESET_TEXTURE_FILEPATH			"../resources/raou_interior_tptileset/top-down_interior_v2.png"
+#define TEST_BUILDING_MAP_DATA_FILEPATH0			"../resources/maps/test_building_Base.csv"
+#define TEST_BUILDING_MAP_DATA_FILEPATH1			"../resources/maps/test_building_Objects-low.csv"
+#define TEST_BUILDING_MAP_DATA_FILEPATH2			"../resources/maps/test_building_Objects-high.csv"
+#define TEST_BUILDING_MAP_TELEPORTERS_FILEPATH		"../resources/maps/test_building_teleporters.txt"
 #pragma endregion
 
 #pragma region Colors
@@ -25,6 +30,9 @@
 
 #define TILE_WIDTH						16
 #define TILE_HEIGHT						16
+
+#define TELEPORTER_WIDTH				TILE_WIDTH
+#define TELEPORTER_HEIGHT				1		//1 so you have to slightly walk into the door/portal area to actually be teleported
 
 #define PLAYER_WIDTH					24
 #define PLAYER_HEIGHT					24

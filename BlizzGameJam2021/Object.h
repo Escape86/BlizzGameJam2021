@@ -33,6 +33,9 @@ public:
 	double GetPositionX() const;
 	double GetPositionY() const;
 
+	int GetWidth() const;
+	int GetHeight() const;
+
 	void SetPosition(double x, double y);
 
 	Direction GetFacing() const;

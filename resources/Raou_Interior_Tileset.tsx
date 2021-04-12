@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset name="Raou_Interior_Tileset" tilewidth="16" tileheight="16" tilecount="854" columns="14">
- <image source="raou_interior_tptileset/top-down interior_v2.png" width="224" height="976"/>
+<tileset version="1.5" tiledversion="1.5.0" name="Raou_Interior_Tileset" tilewidth="16" tileheight="16" tilecount="854" columns="14">
+ <image source="raou_interior_tptileset/top-down_interior_v2.png" width="224" height="976"/>
  <tile id="0">
   <properties>
    <property name="walkable" type="bool" value="false"/>

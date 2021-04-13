@@ -2,4 +2,5 @@
 -- ID, XPos, YPos, Width, Height, TexturePath, TextureOffsetX, TextureOffsetY, ShouldIdleMove, IsEnemy --
 ---------------------------------------------------------------------------------------------------------
 -- Test Monster
-0, 290.0, 290.0, 32, 32, ../resources/monsters.png, 192, 224, true, true
+0, 226.0, 287.0, 32, 32, ../resources/monsters.png, 192, 224, true, true
+1, 431.0, 284.0, 32, 32, ../resources/monsters.png, 192, 224, true, true

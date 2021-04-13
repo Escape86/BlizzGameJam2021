@@ -6,7 +6,7 @@ class Spawn : public Object
 {
 public:
 	Spawn(int id, double spawnX, double spawnY, int width, int height, const std::string& texturePath, int spriteSheetOffsetX, int spriteSheetOffsetY, bool shouldIdleMove);
-	~Spawn();
+	virtual ~Spawn();
 
 	void InjectFrame(unsigned int elapsedGameTime, unsigned int previousFrameTime) override;
 	void Draw() override;

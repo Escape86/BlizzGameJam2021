@@ -1,14 +1,14 @@
 #pragma once
 #include "SDL_rect.h"
 #include "Teleporter.h"
-#include "Spawn.h"
-#include "Enemy.h"
 #include <vector>
 #include <string>
 
 #pragma region Forward Declarations
 class Player;
 class Map;
+class Spawn;
+class Enemy;
 #pragma endregion
 
 class Game
@@ -43,8 +43,8 @@ private:
 	
 	SDL_Rect camera;
 
-	std::vector<Spawn> spawns;
-	std::vector<Enemy> enemies;
+	std::vector<Spawn*> spawns;
+	std::vector<Enemy*> enemies;
 	std::vector<Teleporter> teleporters;
 
 	Destination destinationMapSwitch;

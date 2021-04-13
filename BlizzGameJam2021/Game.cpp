@@ -2,6 +2,8 @@
 #include "Player.h"
 #include "Map.h"
 #include "Teleporter.h"
+#include "Spawn.h"
+#include "Enemy.h"
 #include "Constants.h"
 #include "SDL_timer.h"
 #include "SDL_keycode.h"
@@ -98,15 +100,15 @@ void Game::InjectFrame()
 	}
 
 	//update spawns
-	for (Spawn& spawn : this->spawns)
+	for (Spawn* spawn : this->spawns)
 	{
-		spawn.InjectFrame(elapsedTimeInMilliseconds, previousFrameTime);
+		spawn->InjectFrame(elapsedTimeInMilliseconds, previousFrameTime);
 	}
 
 	//update enemies
-	for (Enemy& enemy : this->enemies)
+	for (Enemy* enemy : this->enemies)
 	{
-		enemy.InjectFrame(elapsedTimeInMilliseconds, previousFrameTime);
+		enemy->InjectFrame(elapsedTimeInMilliseconds, previousFrameTime);
 	}
 
 	//center the camera over the player
@@ -137,14 +139,14 @@ void Game::InjectFrame()
 	this->map->Draw(camera.x, camera.y);
 	this->player->Draw();
 	
-	for (Spawn& spawn : this->spawns)
+	for (Spawn* spawn : this->spawns)
 	{
-		spawn.Draw();
+		spawn->Draw();
 	}
 
-	for (Enemy& enemy: this->enemies)
+	for (Enemy* enemy : this->enemies)
 	{
-		enemy.Draw();
+		enemy->Draw();
 	}
 
 	//end of frame
@@ -268,7 +270,17 @@ const SDL_Rect& Game::GetCamera() const
 void Game::cleanUpGameObjects()
 {
 	this->teleporters.clear();
+
+	for (Spawn* spawn : this->spawns)
+	{
+		delete spawn;
+	}
 	this->spawns.clear();
+
+	for (Enemy* enemy : this->enemies)
+	{
+		delete enemy;
+	}	
 	this->enemies.clear();
 
 	if (this->map)
@@ -472,11 +484,11 @@ bool Game::loadSpawns(const std::string& filepath)
 		//create it
 		if (isEnemy)
 		{
-			this->enemies.emplace_back(id, spawnX, spawnY, width, height, texturePath, spriteOffsetX, spriteOffsetY, shouldIdleMove);
+			this->enemies.push_back(new Enemy(id, spawnX, spawnY, width, height, texturePath, spriteOffsetX, spriteOffsetY, shouldIdleMove));
 		}
 		else
 		{
-			this->spawns.emplace_back(id, spawnX, spawnY, width, height, texturePath, spriteOffsetX, spriteOffsetY, shouldIdleMove);
+			this->spawns.push_back(new Spawn(id, spawnX, spawnY, width, height, texturePath, spriteOffsetX, spriteOffsetY, shouldIdleMove));
 		}
 
 		free(l);

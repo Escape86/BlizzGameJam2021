@@ -4,6 +4,7 @@
 #include "Teleporter.h"
 #include "Spawn.h"
 #include "Enemy.h"
+#include "Texture.h"
 #include "Constants.h"
 #include "SDL_timer.h"
 #include "SDL_keycode.h"
@@ -36,6 +37,10 @@ Game::Game()
 	std::vector<std::string> mapDataFilePaths = { STARTING_HOUSE_MAP_DATA_FILEPATH0, STARTING_HOUSE_MAP_DATA_FILEPATH1, STARTING_HOUSE_MAP_DATA_FILEPATH2 };
 	this->SwitchMap(mapDataFilePaths, INTERIOR_TILESET_TEXTURE_FILEPATH, STARTING_HOUSE_MAP_TELEPORTERS_FILEPATH, STARTING_HOUSE_MAP_SPAWNS_FILEPATH);
 
+	//load heart texture for the UI
+	this->heartTexture = new Texture(HEART_TEXTURE_PATH);
+	this->heartTexture->Load();
+
 	Game::_instance = this;
 }
 
@@ -51,6 +56,12 @@ Game::~Game()
 	{
 		delete this->player;
 		this->player = nullptr;
+	}
+
+	if (this->heartTexture)
+	{
+		delete this->heartTexture;
+		this->heartTexture = nullptr;
 	}
 }
 
@@ -109,6 +120,15 @@ void Game::InjectFrame()
 	for (Enemy* enemy : this->enemies)
 	{
 		enemy->InjectFrame(elapsedTimeInMilliseconds, previousFrameTime);
+
+		//did our player and this enemy collide?
+		if (enemy->TestCollision(this->player))
+		{
+			//yup, punish the player!
+			int playerHP = this->player->GetHp();
+			this->player->SetHp(playerHP - 1);
+			enemy->DoRecoil(this->player->GetFacing());
+		}
 	}
 
 	//center the camera over the player
@@ -148,6 +168,9 @@ void Game::InjectFrame()
 	{
 		enemy->Draw();
 	}
+
+	//draw hearts ui
+	this->drawHeartsUI();
 
 	//end of frame
 	this->previousFrameEndTime = elapsedTimeInMilliseconds;
@@ -497,6 +520,22 @@ bool Game::loadSpawns(const std::string& filepath)
 	file.close();
 
 	return true;
+}
+
+void Game::drawHeartsUI()
+{
+	int playerHP = this->player->GetHp();
+
+	int h1Offset = playerHP >= 2 ? 2 : playerHP == 1 ? 1 : 0;
+	int h2Offset = playerHP >= 4 ? 2 : playerHP == 3 ? 1 : 0;
+	int h3Offset = playerHP >= 6 ? 2 : playerHP == 5 ? 1 : 0;
+
+	//1
+	Display::QueueTextureForRendering(this->heartTexture, 5, 5, 20, 20, false, true, h1Offset * 20, 0);
+	//2
+	Display::QueueTextureForRendering(this->heartTexture, 25, 5, 20, 20, false, true, h2Offset * 20, 0);
+	//3
+	Display::QueueTextureForRendering(this->heartTexture, 45, 5, 20, 20, false, true, h3Offset * 20, 0);
 }
 
 #pragma endregion

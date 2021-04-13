@@ -21,6 +21,8 @@ Player::Player(double spawnX, double spawnY, Direction initialFacing) : Object(s
 	this->spriteSheetOffsetX = 0;
 	this->spriteSheetOffsetY = 0;
 
+	this->hp = PLAYER_MAX_HP;
+
 	this->animationFlag = false;
 	this->animationSwapCooldown = 0;
 
@@ -214,6 +216,16 @@ void Player::OnKeyUp(int key)
 		this->horizontalVelocity = PLAYER_VELOCITY;
 	else if (this->horizontalVelocity < -PLAYER_VELOCITY)
 		this->horizontalVelocity = -PLAYER_VELOCITY;
+}
+
+int Player::GetHp() const
+{
+	return this->hp;
+}
+
+void Player::SetHp(int hp)
+{
+	this->hp = hp;
 }
 
 void Player::ResetHorizontalVelocity()

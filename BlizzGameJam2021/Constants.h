@@ -2,6 +2,7 @@
 
 #pragma region Filepaths
 #define FONT_FILEPATH								"../resources/Fonts/Orbitron/Orbitron-Regular.ttf"
+#define HEART_TEXTURE_PATH							"../resources/Hearts.png"
 #define PLAYER_TEXTURE_PATH							"../resources/player.png"
 #define STARTING_HOUSE_MAP_DATA_FILEPATH0			"../resources/maps/starting_house_Base.csv"
 #define STARTING_HOUSE_MAP_DATA_FILEPATH1			"../resources/maps/starting_house_Objects-low.csv"
@@ -52,7 +53,7 @@
 #define PLAYER_MAX_HP					6
 #define ENEMY_HP						3
 
-#define ATTACK_RECOIL_AMOUNT			45
+#define ATTACK_RECOIL_AMOUNT			20
 
 #define JOYSTICK_DEAD_ZONE				8000
 

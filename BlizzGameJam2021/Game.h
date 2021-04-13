@@ -9,6 +9,7 @@ class Player;
 class Map;
 class Spawn;
 class Enemy;
+class Texture;
 #pragma endregion
 
 class Game
@@ -34,6 +35,7 @@ public:
 
 private:
 
+	void drawHeartsUI();
 	void cleanUpGameObjects();
 	bool loadTeleporters(const std::string& filepath);
 	bool loadSpawns(const std::string& filepath);
@@ -46,6 +48,8 @@ private:
 	std::vector<Spawn*> spawns;
 	std::vector<Enemy*> enemies;
 	std::vector<Teleporter> teleporters;
+
+	Texture* heartTexture = nullptr;
 
 	Destination destinationMapSwitch;
 	bool mapSwitchRequested = false;

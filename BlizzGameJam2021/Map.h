@@ -27,6 +27,6 @@ private:
 
 	int rowCount = 0;
 	int columnCount = 0;
-	Texture* texture;
+	Texture* texture = nullptr;
 	std::map<int, std::vector<MapTile*>> mapTilesByLayer;
 };

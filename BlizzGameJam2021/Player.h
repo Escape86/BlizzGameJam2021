@@ -17,6 +17,9 @@ public:
 	void OnKeyDown(int key);
 	void OnKeyUp(int key);
 
+	int GetHp() const;
+	void SetHp(int hp);
+
 	void ResetHorizontalVelocity();
 	void ResetVerticalVelocity();
 
@@ -25,6 +28,8 @@ private:
 
 	int horizontalVelocity;
 	int verticalVelocity;
+
+	int hp;
 
 	bool keydownPrimed;
 	bool animationFlag;

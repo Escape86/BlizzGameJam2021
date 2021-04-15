@@ -13,36 +13,61 @@ struct TileInfo
 	int spriteSheetRowOffset;
 	int spriteSheetColumnOffset;
 	bool walkAble;
+	bool isObject;
 };
 
-std::map<int, TileInfo> interiorTileIdToInfoLookup;		// { id, { spriteSheetRowOffset, spriteSheetColumnOffset, walkAble }}
+std::map<int, TileInfo> interiorTileIdToInfoLookup;		// { id, { spriteSheetRowOffset, spriteSheetColumnOffset, walkAble, isObject }}
 
 bool MapTile::InitInteriorTileInfo()
 {
 	//read info from file
-	std::fstream file;
-	file.open(INTERIOR_TILESET_WALKABLE_DATA_FILEPATH, std::ios::in);
+	std::fstream walkableFile;
+	walkableFile.open(INTERIOR_TILESET_WALKABLE_DATA_FILEPATH, std::ios::in);
 	
-	if (!file.is_open())
+	if (!walkableFile.is_open())
 		return false;
 
 	std::map<int, bool> walkableValues;
 
-	std::string buffer;
-	while (std::getline(file, buffer))
+	std::string walkableBuffer;
+	while (std::getline(walkableFile, walkableBuffer))
 	{
-		size_t delimiterLocation = buffer.find(':');
+		size_t delimiterLocation = walkableBuffer.find(':');
 
-		std::string idAsString = buffer.substr(0, delimiterLocation);
+		std::string idAsString = walkableBuffer.substr(0, delimiterLocation);
 		int id = std::stoi(idAsString);
 
-		std::string valueAsString = buffer.substr(delimiterLocation + 1);	//+1 to skip delimiter
+		std::string valueAsString = walkableBuffer.substr(delimiterLocation + 1);	//+1 to skip delimiter
 		bool value = (valueAsString.compare("true") == 0);
 
 		walkableValues.insert(std::make_pair(id, value));
 	}
 
-	file.close();
+	walkableFile.close();
+
+	std::fstream isObjectFile;
+	isObjectFile.open(INTERIOR_TILESET_ISOBJECT_DATA_FILEPATH, std::ios::in);
+
+	if (!isObjectFile.is_open())
+		return false;
+
+	std::map<int, bool> isObjectValues;
+
+	std::string isObjectBuffer;
+	while (std::getline(isObjectFile, isObjectBuffer))
+	{
+		size_t delimiterLocation = isObjectBuffer.find(':');
+
+		std::string idAsString = isObjectBuffer.substr(0, delimiterLocation);
+		int id = std::stoi(idAsString);
+
+		std::string valueAsString = isObjectBuffer.substr(delimiterLocation + 1);	//+1 to skip delimiter
+		bool value = (valueAsString.compare("true") == 0);
+
+		isObjectValues.insert(std::make_pair(id, value));
+	}
+
+	isObjectFile.close();
 
 	const int ROW_COUNT = 61;
 	const int COLUMN_COUNT = 14;
@@ -52,7 +77,7 @@ bool MapTile::InitInteriorTileInfo()
 		for (int column = 0; column < COLUMN_COUNT; column++)
 		{
 			int id = (row * COLUMN_COUNT) + column;
-			interiorTileIdToInfoLookup.insert({ id, { row, column, walkableValues[id] } });
+			interiorTileIdToInfoLookup.insert({ id, { row, column, walkableValues[id], isObjectValues[id] } });
 		}
 	}
 
@@ -83,7 +108,9 @@ MapTile::MapTile(const std::string& mapFileNameName, const int id, const int wor
 {
 	this->mapUniqueId = mapFileNameToMapUniqueIDLookup.at(mapFileNameName);
 
-	this->walkable = mapFileNameToTileIdToInfoLookup.at(this->mapUniqueId).at(this->id).walkAble;
+	const TileInfo& tileInfo = mapFileNameToTileIdToInfoLookup.at(this->mapUniqueId).at(this->id);
+	this->walkable = tileInfo.walkAble;
+	this->isObject = tileInfo.isObject;
 }
 
 #pragma endregion
@@ -97,7 +124,7 @@ MapTile::~MapTile()
 
 void MapTile::Draw(Texture* texture, int cameraShiftX, int cameraShiftY) const
 {
-	Display::QueueTextureForRendering(texture, (this->worldGridColumn * TILE_WIDTH) - (TILE_WIDTH / 2) - cameraShiftX, (this->worldGridRow * TILE_HEIGHT) - (TILE_HEIGHT / 2) - cameraShiftY, TILE_WIDTH, TILE_HEIGHT, false, RenderLayers::GROUND, true, mapFileNameToTileIdToInfoLookup.at(this->mapUniqueId).at(this->id).spriteSheetColumnOffset * TILE_WIDTH, mapFileNameToTileIdToInfoLookup.at(this->mapUniqueId).at(this->id).spriteSheetRowOffset * TILE_HEIGHT);
+	Display::QueueTextureForRendering(texture, (this->worldGridColumn * TILE_WIDTH) - (TILE_WIDTH / 2) - cameraShiftX, (this->worldGridRow * TILE_HEIGHT) - (TILE_HEIGHT / 2) - cameraShiftY, TILE_WIDTH, TILE_HEIGHT, false, this->isObject ? RenderLayers::OBJECTS : RenderLayers::GROUND, true, mapFileNameToTileIdToInfoLookup.at(this->mapUniqueId).at(this->id).spriteSheetColumnOffset * TILE_WIDTH, mapFileNameToTileIdToInfoLookup.at(this->mapUniqueId).at(this->id).spriteSheetRowOffset * TILE_HEIGHT);
 }
 
 int MapTile::GetWorldGridRow() const
@@ -113,6 +140,11 @@ int MapTile::GetWorldGridColumn() const
 bool MapTile::GetIsWalkable() const
 {
 	return this->walkable;
+}
+
+bool MapTile::GetIsObject() const
+{
+	return this->isObject;
 }
 
 int MapTile::GetMapIdByFileName(const std::string& filename)

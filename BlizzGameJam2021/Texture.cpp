@@ -150,6 +150,11 @@ void Texture::SetRenderOffset(int offsetX, int offsetY)
 	this->renderOffsetY = offsetY;
 }
 
+void Texture::SetOpacity(Uint8 opacity) const
+{
+	SDL_SetTextureAlphaMod(this->sdl_texture, opacity);
+}
+
 int Texture::GetWidth() const
 {
 	return this->width;

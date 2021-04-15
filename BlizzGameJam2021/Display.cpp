@@ -74,6 +74,16 @@ bool Display::Initialize()
 		}
 	}
 
+	//init layer opacities
+	Display::layerOpacity =
+	{
+		{ RenderLayers::GROUND, 255 },
+		{ RenderLayers::OBJECTS, 255 },
+		{ RenderLayers::SPAWNS, 255 },
+		{ RenderLayers::PLAYER, 255 },
+		{ RenderLayers::UI, 255 },
+	};
+
 	//set Render Scale
 	SDL_RenderSetScale(renderer, RENDER_SCALE_AMOUNT, RENDER_SCALE_AMOUNT);
 
@@ -134,12 +144,12 @@ void Display::InjectFrame()
 	//draw our queued up textures
 	for (std::vector<QueuedTexture>::iterator it = Display::textureQueue.begin(); it != Display::textureQueue.end(); ++it)
 	{
-		//is this layer requested to draw this frame?
-		if ((it->layer & Display::layersToDrawMask) == 0)
-			continue;
-
 		//draw it!
 		const Texture* t = it->texture;
+
+		//update texture opacity based on its layer
+		Uint8 opacity = Display::GetRenderLayerOpacity(it->layer);
+		t->SetOpacity(opacity);
 
 		if (it->isSpriteSheet)
 		{
@@ -184,7 +194,7 @@ void Display::InjectFrame()
 
 		//Render chat box
 		SDL_Rect chatBox = { 5, (int)chatY, (int)(SCREEN_WIDTH * .5) - 10, (int)chatHeight };
-		SDL_SetRenderDrawColor(Display::renderer, 0x00, 0x00, 0xFF, 0xFF);
+		SDL_SetRenderDrawColor(Display::renderer, 0x00, 0x00, 0xFF, Display::layerOpacity[RenderLayers::UI]);
 		SDL_RenderFillRect(Display::renderer, &chatBox);
 	}
 
@@ -195,9 +205,15 @@ void Display::InjectFrame()
 			continue;
 
 		const Texture* t = Texture::CreateFromText(it->text, it->textColor, it->fontsize);
-
+		
 		if (t)
+		{
+			//update texture opacity based on its layer
+			Uint8 opacity = Display::layerOpacity[RenderLayers::UI];
+			t->SetOpacity(opacity);
+
 			t->Draw(it->x, it->y, false);
+		}
 
 		delete t;
 	}
@@ -206,12 +222,8 @@ void Display::InjectFrame()
 	//render queued rectangles
 	for (std::vector<QueuedRectangle>::iterator it = Display::rectangleQueue.begin(); it != Display::rectangleQueue.end(); ++it)
 	{
-		//is this layer requested to draw this frame?
-		if ((it->layer & Display::layersToDrawMask) == 0)
-			continue;
-
 		SDL_Rect r = { it->x, it->y, it->width, it->height };
-		SDL_SetRenderDrawColor(Display::renderer, it->color.r, it->color.g, it->color.b, 0xFF);
+		SDL_SetRenderDrawColor(Display::renderer, it->color.r, it->color.g, it->color.b, Display::layerOpacity[it->layer]);
 		SDL_RenderFillRect(Display::renderer, &r);
 	}
 	Display::rectangleQueue.clear();
@@ -310,9 +322,14 @@ bool Display::RemoveText(int id)
 	return false;
 }
 
-void Display::SetRenderLayersToDrawMask(RenderLayers layersToDrawMask)
+Uint8 Display::GetRenderLayerOpacity(RenderLayers layer)
 {
-	Display::layersToDrawMask = layersToDrawMask;
+	return Display::layerOpacity[layer];
+}
+
+void Display::SetRenderLayerOpacity(RenderLayers layer, Uint8 opacity)
+{
+	Display::layerOpacity[layer] = opacity;
 }
 
 #pragma endregion
@@ -349,5 +366,5 @@ std::vector<Display::QueuedTexture> Display::textureQueue;
 std::vector<Display::QueuedRectangle> Display::rectangleQueue;
 std::vector<Display::QueuedText> Display::textQueue;
 int Display::textControlIdCounter = 0;
-RenderLayers Display::layersToDrawMask = RenderLayers::DO_NOT_RENDER;
+std::map<RenderLayers, Uint8> Display::layerOpacity;
 #pragma endregion

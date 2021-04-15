@@ -10,6 +10,7 @@
 #define STARTING_HOUSE_MAP_TELEPORTERS_FILEPATH		"../resources/maps/starting_house_teleporters.txt"
 #define STARTING_HOUSE_MAP_SPAWNS_FILEPATH			"../resources/maps/starting_house_spawns.txt"
 #define INTERIOR_TILESET_WALKABLE_DATA_FILEPATH		"../resources/interior_tileset_walkable.txt"
+#define INTERIOR_TILESET_ISOBJECT_DATA_FILEPATH		"../resources/interior_tileset_isObject.txt"
 #define INTERIOR_TILESET_TEXTURE_FILEPATH			"../resources/raou_interior_tptileset/top-down_interior_v2.png"
 #define TEST_BUILDING_MAP_DATA_FILEPATH0			"../resources/maps/test_building_Base.csv"
 #define TEST_BUILDING_MAP_DATA_FILEPATH1			"../resources/maps/test_building_Objects-low.csv"
@@ -54,6 +55,10 @@
 #define ENEMY_HP						3
 
 #define ATTACK_RECOIL_AMOUNT			20
+
+#define PLAYER_TAKE_DAMAGE_COOLDOWN		1000	//in milliseconds
+#define ON_DAMAGE_VISIBILITY_REDUCE		75
+#define VISIBILITY_RESTORE_COOLDOWN		1000	//in milliseconds
 
 #define JOYSTICK_DEAD_ZONE				8000
 

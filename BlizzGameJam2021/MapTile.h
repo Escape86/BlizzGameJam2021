@@ -18,6 +18,7 @@ public:
 	int GetWorldGridColumn() const;
 
 	bool GetIsWalkable() const;
+	bool GetIsObject() const;
 
 	static int GetMapIdByFileName(const std::string& filename);
 
@@ -29,4 +30,5 @@ private:
 	const int worldGridRow;
 	const int worldGridColumn;
 	bool walkable;
+	bool isObject;
 };

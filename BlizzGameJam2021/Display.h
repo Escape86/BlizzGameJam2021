@@ -15,14 +15,13 @@ class Texture;
 
 enum RenderLayers
 {
-	DO_NOT_RENDER = 0,
-	GROUND	= 1 << 0,
-	OBJECTS = 1 << 1,
-	SPAWNS	= 1 << 2,
-	PLAYER	= 1 << 3,
-	UI		= 1 << 4,
+	GROUND = 0,
+	OBJECTS,
+	SPAWNS,
+	PLAYER,
+	UI,
 
-	ALL = GROUND | OBJECTS | SPAWNS | PLAYER | UI
+	NUM_LAYERS
 };
 
 enum FontSize
@@ -69,7 +68,8 @@ public:
 	static bool SetTextIsVisible(int id, bool isVisible);
 	static bool RemoveText(int id);
 
-	static void SetRenderLayersToDrawMask(RenderLayers layersToDrawMask);
+	static Uint8 GetRenderLayerOpacity(RenderLayers layer);
+	static void SetRenderLayerOpacity(RenderLayers layer, Uint8 opacity);
 
 private:
 	static bool loadFonts();
@@ -81,7 +81,7 @@ private:
 	static SDL_Joystick* gameController;
 	static int textControlIdCounter;
 
-	static RenderLayers layersToDrawMask;
+	static std::map<RenderLayers, Uint8> layerOpacity;
 
 	struct QueuedTexture
 	{

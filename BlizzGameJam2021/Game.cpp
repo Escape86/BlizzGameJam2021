@@ -42,9 +42,6 @@ Game::Game()
 	this->heartTexture = new Texture(HEART_TEXTURE_PATH);
 	this->heartTexture->Load();
 
-	//init layer draw mask
-	Display::SetRenderLayersToDrawMask(RenderLayers::ALL);
-
 	Game::_instance = this;
 }
 
@@ -129,10 +126,20 @@ void Game::InjectFrame()
 		if (enemy->TestCollision(this->player))
 		{
 			//yup, punish the player!
-			int playerHP = this->player->GetHp();
-			this->player->SetHp(playerHP - 1);
+			if (this->onPlayerTakeDamageCooldown <= 0)
+			{
+				this->onPlayerTakeDamage();
+				this->onPlayerTakeDamageCooldown = PLAYER_TAKE_DAMAGE_COOLDOWN;
+			}
+
+			//also bounce the enemy away via recoil
 			enemy->DoRecoil(this->player->GetFacing());
 		}
+	}
+
+	if (this->onPlayerTakeDamageCooldown > 0)
+	{
+		this->onPlayerTakeDamageCooldown -= previousFrameTime;
 	}
 
 	//center the camera over the player
@@ -175,6 +182,28 @@ void Game::InjectFrame()
 
 	//draw hearts ui
 	this->drawHeartsUI();
+
+	//slowly restore visibility to each layer
+	if (this->visibilityRestoreCooldown <= 0)
+	{
+		for (int layerIndex = 0; layerIndex < RenderLayers::NUM_LAYERS; layerIndex++)
+		{
+			RenderLayers layer = (RenderLayers)layerIndex;
+			Uint8 opacity = Display::GetRenderLayerOpacity(layer);
+
+			if (opacity < 0xFF)
+			{
+				opacity += 1;
+				Display::SetRenderLayerOpacity(layer, opacity);
+			}
+		}
+
+		this->visibilityRestoreCooldown = VISIBILITY_RESTORE_COOLDOWN;
+	}
+	else
+	{
+		this->visibilityRestoreCooldown -= previousFrameTime;
+	}
 
 	//end of frame
 	this->previousFrameEndTime = elapsedTimeInMilliseconds;
@@ -524,6 +553,32 @@ bool Game::loadSpawns(const std::string& filepath)
 	file.close();
 
 	return true;
+}
+
+void Game::onPlayerTakeDamage()
+{
+	//update player's HP
+	int playerHP = this->player->GetHp();
+	this->player->SetHp(playerHP - 1);
+	
+	//reduce visibility of a random layer (except UI)
+	int random = rand() % 4;
+
+	RenderLayers layer = (RenderLayers)random;
+
+	Uint8 opacity = Display::GetRenderLayerOpacity(layer);
+
+	//reduce it
+	if (opacity < ON_DAMAGE_VISIBILITY_REDUCE)
+	{
+		opacity = 0;
+	}
+	else
+	{
+		opacity -= ON_DAMAGE_VISIBILITY_REDUCE;
+	}
+	
+	Display::SetRenderLayerOpacity(layer, opacity);
 }
 
 void Game::drawHeartsUI()

@@ -20,6 +20,8 @@ public:
 
 	void SetRenderOffset(int offsetX, int offsetY);
 
+	void SetOpacity(Uint8 opacity) const;
+
 	int GetWidth() const;
 	int GetHeight() const;
 

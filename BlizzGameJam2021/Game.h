@@ -39,6 +39,7 @@ private:
 	void cleanUpGameObjects();
 	bool loadTeleporters(const std::string& filepath);
 	bool loadSpawns(const std::string& filepath);
+	void onPlayerTakeDamage();
 
 	Player* player;
 	Map* map;
@@ -48,6 +49,9 @@ private:
 	std::vector<Spawn*> spawns;
 	std::vector<Enemy*> enemies;
 	std::vector<Teleporter> teleporters;
+
+	int onPlayerTakeDamageCooldown = 0;
+	int visibilityRestoreCooldown = 0;
 
 	Texture* heartTexture = nullptr;
 

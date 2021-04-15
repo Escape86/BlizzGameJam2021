@@ -12,7 +12,7 @@
 #pragma region Constructor
 
 Spawn::Spawn(int id, double spawnX, double spawnY, int width, int height, const std::string& texturePath, int spriteSheetOffsetX, int spriteSheetOffsetY, bool shouldIdleMove)
-	: Object(spawnX, spawnY, width, height, texturePath), id(id)
+	: Object(spawnX, spawnY, width, height, texturePath, RenderLayers::SPAWNS), id(id)
 {
 	this->spriteSheetOffsetX = spriteSheetOffsetX;
 	this->spriteSheetOffsetY = spriteSheetOffsetY;
@@ -159,7 +159,7 @@ void Spawn::Draw()
 	const Game* game = Game::GetInstance();
 	const SDL_Rect& camera = game->GetCamera();
 
-	Display::QueueTextureForRendering(this->texture, this->x - camera.x, this->y - camera.y, this->width, this->height, true, true, this->spriteSheetOffsetX, this->spriteSheetOffsetY);
+	Display::QueueTextureForRendering(this->texture, this->x - camera.x, this->y - camera.y, this->width, this->height, true, this->layer, true, this->spriteSheetOffsetX, this->spriteSheetOffsetY);
 }
 
 int Spawn::GetID()

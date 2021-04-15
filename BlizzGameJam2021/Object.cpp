@@ -8,8 +8,8 @@
 
 #pragma region Constructor
 
-Object::Object(double spawnX, double spawnY, int width, int height, const std::string& texturePath)
-	: width(width), height(height)
+Object::Object(double spawnX, double spawnY, int width, int height, const std::string& texturePath, RenderLayers layer)
+	: width(width), height(height), layer(layer)
 {
 #if _DEBUG
 	assert(this->width);
@@ -44,7 +44,7 @@ void Object::Draw()
 	assert(this->height);
 #endif
 
-	Display::QueueTextureForRendering(this->texture, this->x, this->y, this->width, this->height, true);
+	Display::QueueTextureForRendering(this->texture, this->x, this->y, this->width, this->height, true, this->layer);
 }
 
 bool Object::TestCollision(const Object* otherObject) const

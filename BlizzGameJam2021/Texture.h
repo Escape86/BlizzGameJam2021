@@ -1,9 +1,11 @@
 #pragma once
 
 #include "SDL.h"
-#include "Display.h"
 #include <string>
 
+#pragma region Forward Declarations
+enum FontSize;
+#pragma endregion
 
 class Texture
 {
@@ -11,7 +13,7 @@ public:
 	Texture(const std::string& path);
 	~Texture();
 
-	static Texture* CreateFromText(const std::string& text, SDL_Color textColor, Display::FontSize fontSize);
+	static Texture* CreateFromText(const std::string& text, SDL_Color textColor, FontSize fontSize);
 
 	bool Load();
 	void Draw(int x, int y, bool shiftToCenter, SDL_Rect* clip = nullptr, double angle = 0.0, SDL_Point* center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE) const;

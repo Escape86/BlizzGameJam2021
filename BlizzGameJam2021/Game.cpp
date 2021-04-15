@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Display.h"
 #include "Player.h"
 #include "Map.h"
 #include "Teleporter.h"
@@ -40,6 +41,9 @@ Game::Game()
 	//load heart texture for the UI
 	this->heartTexture = new Texture(HEART_TEXTURE_PATH);
 	this->heartTexture->Load();
+
+	//init layer draw mask
+	Display::SetRenderLayersToDrawMask(RenderLayers::ALL);
 
 	Game::_instance = this;
 }
@@ -531,11 +535,11 @@ void Game::drawHeartsUI()
 	int h3Offset = playerHP >= 6 ? 2 : playerHP == 5 ? 1 : 0;
 
 	//1
-	Display::QueueTextureForRendering(this->heartTexture, 5, 5, 20, 20, false, true, h1Offset * 20, 0);
+	Display::QueueTextureForRendering(this->heartTexture, 5, 5, 20, 20, false, RenderLayers::UI, true, h1Offset * 20, 0);
 	//2
-	Display::QueueTextureForRendering(this->heartTexture, 25, 5, 20, 20, false, true, h2Offset * 20, 0);
+	Display::QueueTextureForRendering(this->heartTexture, 25, 5, 20, 20, false, RenderLayers::UI, true, h2Offset * 20, 0);
 	//3
-	Display::QueueTextureForRendering(this->heartTexture, 45, 5, 20, 20, false, true, h3Offset * 20, 0);
+	Display::QueueTextureForRendering(this->heartTexture, 45, 5, 20, 20, false, RenderLayers::UI, true, h3Offset * 20, 0);
 }
 
 #pragma endregion

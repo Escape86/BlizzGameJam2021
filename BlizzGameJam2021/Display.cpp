@@ -134,6 +134,11 @@ void Display::InjectFrame()
 	//draw our queued up textures
 	for (std::vector<QueuedTexture>::iterator it = Display::textureQueue.begin(); it != Display::textureQueue.end(); ++it)
 	{
+		//is this layer requested to draw this frame?
+		if ((it->layer & Display::layersToDrawMask) == 0)
+			continue;
+
+		//draw it!
 		const Texture* t = it->texture;
 
 		if (it->isSpriteSheet)
@@ -189,7 +194,7 @@ void Display::InjectFrame()
 		if (!it->isVisible || it->text.empty())
 			continue;
 
-		Texture* t = Texture::CreateFromText(it->text, it->textColor, it->fontsize);
+		const Texture* t = Texture::CreateFromText(it->text, it->textColor, it->fontsize);
 
 		if (t)
 			t->Draw(it->x, it->y, false);
@@ -201,6 +206,10 @@ void Display::InjectFrame()
 	//render queued rectangles
 	for (std::vector<QueuedRectangle>::iterator it = Display::rectangleQueue.begin(); it != Display::rectangleQueue.end(); ++it)
 	{
+		//is this layer requested to draw this frame?
+		if ((it->layer & Display::layersToDrawMask) == 0)
+			continue;
+
 		SDL_Rect r = { it->x, it->y, it->width, it->height };
 		SDL_SetRenderDrawColor(Display::renderer, it->color.r, it->color.g, it->color.b, 0xFF);
 		SDL_RenderFillRect(Display::renderer, &r);
@@ -221,14 +230,14 @@ SDL_Renderer* const Display::GetRenderer()
 	return Display::renderer;
 }
 
-void Display::QueueTextureForRendering(const Texture* texture, int x, int y, int width, int height, bool shiftToCenterPoint, bool isSpriteSheet /*=false*/, int spriteSheetOffsetX /*=0*/, int spriteSheetOffsetY /*=0*/)
+void Display::QueueTextureForRendering(const Texture* texture, int x, int y, int width, int height, bool shiftToCenterPoint, RenderLayers layer, bool isSpriteSheet /*=false*/, int spriteSheetOffsetX /*=0*/, int spriteSheetOffsetY /*=0*/)
 {
-	Display::textureQueue.push_back({ texture, x, y, width, height, shiftToCenterPoint, isSpriteSheet, spriteSheetOffsetX, spriteSheetOffsetY });
+	Display::textureQueue.push_back({ texture, x, y, width, height, shiftToCenterPoint, isSpriteSheet, spriteSheetOffsetX, spriteSheetOffsetY, layer });
 }
 
-void Display::QueueRectangleForRendering(int x, int y, int width, int height, unsigned char r, unsigned char g, unsigned char b)
+void Display::QueueRectangleForRendering(int x, int y, int width, int height, unsigned char r, unsigned char g, unsigned char b, RenderLayers layer)
 {
-	Display::rectangleQueue.push_back({ x, y, width, height, SDL_Color { r, g, b} });
+	Display::rectangleQueue.push_back({ x, y, width, height, SDL_Color { r, g, b}, layer });
 }
 
 TTF_Font* const Display::GetFont(FontSize size)
@@ -236,10 +245,10 @@ TTF_Font* const Display::GetFont(FontSize size)
 	return Display::fonts[size];
 }
 
-int Display::CreateText(const std::string& text, int x, int y, Display::FontSize fontSize, bool useChatBox, SDL_Color textColor /*= { 0, 0, 0 }*/)
+int Display::CreateText(const std::string& text, int x, int y, FontSize fontSize, bool useChatBox, SDL_Color textColor /*= { 0, 0, 0 }*/)
 {
 	int id = Display::textControlIdCounter++;
-	Display::textQueue.push_back(QueuedText{ x, y, text, textColor, fontSize, true, id, useChatBox });
+	Display::textQueue.push_back({ x, y, text, textColor, fontSize, true, id, useChatBox });
 	return id;
 }
 
@@ -301,6 +310,11 @@ bool Display::RemoveText(int id)
 	return false;
 }
 
+void Display::SetRenderLayersToDrawMask(RenderLayers layersToDrawMask)
+{
+	Display::layersToDrawMask = layersToDrawMask;
+}
+
 #pragma endregion
 
 #pragma region Private Methods
@@ -328,12 +342,12 @@ bool Display::loadFonts()
 
 SDL_Window* Display::window = nullptr;
 SDL_Renderer* Display::renderer = nullptr;
-std::map<Display::FontSize, TTF_Font*> Display::fonts;
+std::map<FontSize, TTF_Font*> Display::fonts;
 std::function<void(SDL_Event e)> Display::eventCallback;
 SDL_Joystick* Display::gameController = nullptr;
 std::vector<Display::QueuedTexture> Display::textureQueue;
 std::vector<Display::QueuedRectangle> Display::rectangleQueue;
 std::vector<Display::QueuedText> Display::textQueue;
 int Display::textControlIdCounter = 0;
-
+RenderLayers Display::layersToDrawMask = RenderLayers::DO_NOT_RENDER;
 #pragma endregion

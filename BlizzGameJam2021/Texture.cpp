@@ -1,4 +1,5 @@
 #include "Texture.h"
+#include "Display.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
 
@@ -43,7 +44,7 @@ Texture::~Texture()
 	}
 }
 
-Texture* Texture::CreateFromText(const std::string& text, SDL_Color textColor, Display::FontSize fontSize)
+Texture* Texture::CreateFromText(const std::string& text, SDL_Color textColor, FontSize fontSize)
 {
 	Texture* t = new Texture();
 

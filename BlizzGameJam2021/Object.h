@@ -5,6 +5,7 @@
 #pragma region Forward Declarations
 class Texture;
 struct SDL_Rect;
+enum RenderLayers;
 #pragma endregion
 
 enum Direction
@@ -19,7 +20,7 @@ enum Direction
 class Object
 {
 public:
-	Object(double spawnX, double spawnY, int width, int height, const std::string& texturePath);
+	Object(double spawnX, double spawnY, int width, int height, const std::string& texturePath, RenderLayers layer);
 	virtual ~Object();
 
 	virtual void InjectFrame(unsigned int elapsedGameTime, unsigned int previousFrameTime) = 0;
@@ -49,4 +50,5 @@ protected:
 	Texture* texture = nullptr;
 	int spriteSheetOffsetX;
 	int spriteSheetOffsetY;
+	const RenderLayers layer;
 };

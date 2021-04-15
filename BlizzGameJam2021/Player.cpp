@@ -13,7 +13,7 @@
 
 #pragma region Constructor
 
-Player::Player(double spawnX, double spawnY, Direction initialFacing) : Object(spawnX, spawnY, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_TEXTURE_PATH)
+Player::Player(double spawnX, double spawnY, Direction initialFacing) : Object(spawnX, spawnY, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_TEXTURE_PATH, RenderLayers::PLAYER)
 {
 	this->horizontalVelocity = 0;
 	this->verticalVelocity = 0;
@@ -32,7 +32,7 @@ Player::Player(double spawnX, double spawnY, Direction initialFacing) : Object(s
 	this->keydownPrimed = false;
 
 #if _DEBUG
-	debug_player_pos_text_id = Display::CreateText("(0,0)", 0, 288, Display::TWELVE, false);
+	debug_player_pos_text_id = Display::CreateText("(0,0)", 0, 288, FontSize::TWELVE, false);
 #endif
 }
 
@@ -128,7 +128,7 @@ void Player::Draw()
 	const Game* game = Game::GetInstance();
 	const SDL_Rect& camera = game->GetCamera();
 
-	Display::QueueTextureForRendering(this->texture, this->x - camera.x, this->y - camera.y, this->width, this->height, true, true, this->spriteSheetOffsetX, this->spriteSheetOffsetY);
+	Display::QueueTextureForRendering(this->texture, this->x - camera.x, this->y - camera.y, this->width, this->height, true, RenderLayers::PLAYER, true, this->spriteSheetOffsetX, this->spriteSheetOffsetY);
 
 	//debug position text
 #if _DEBUG

@@ -17,6 +17,12 @@
 #define TEST_BUILDING_MAP_DATA_FILEPATH2			"../resources/maps/test_building_Objects-high.csv"
 #define TEST_BUILDING_MAP_TELEPORTERS_FILEPATH		"../resources/maps/test_building_teleporters.txt"
 #define TEST_BUILDING_MAP_SPAWNS_FILEPATH			"../resources/maps/test_building_spawns.txt"
+
+#define BG_MUSIC_AUDIO_FILEPATH						"../resources/audio/bg_music.wav"
+#define PLAYER_HIT_AUDIO_FILEPATH					"../resources/audio/player_hit.wav"
+
+#define BG_MUSIC_VOLUME								128 / 8
+#define PLAYER_HIT_SOUND_VOLUME						128
 #pragma endregion
 
 #pragma region Colors

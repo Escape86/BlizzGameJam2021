@@ -35,17 +35,26 @@ bool Audio::ShutDown()
 	return true;
 }
 
-void Audio::PlayAudio(AudioTracks track)
+void Audio::PlayAudio(AudioTracks track, bool loop)
 {
-	Mix_PlayChannel(-1, Audio::audioTrackData[track], 0);
+	int channel = Mix_PlayChannel(-1, Audio::audioTrackData[track], loop ? -1 : 0);
+
+	//update volume for this channel based on the track
+	Mix_Volume(channel, Audio::audioTrackToChannelMap[track]);
 }
 #pragma endregion
 
 #pragma region Static Member Initialization
 std::map<Audio::AudioTracks, Mix_Chunk*> Audio::audioTrackData;
-#pragma endregion
+std::map<Audio::AudioTracks, int> Audio::audioTrackToChannelMap
+{
+	{ Audio::AudioTracks::BG_MUSIC, BG_MUSIC_VOLUME },
+	{ Audio::AudioTracks::PLAYER_HIT, PLAYER_HIT_SOUND_VOLUME }
+};
 
 std::map<Audio::AudioTracks, const char*> AudioTrackToFilePathMapping =
 {
-
+	{ Audio::AudioTracks::BG_MUSIC, BG_MUSIC_AUDIO_FILEPATH },
+	{ Audio::AudioTracks::PLAYER_HIT, PLAYER_HIT_AUDIO_FILEPATH }
 };
+#pragma endregion

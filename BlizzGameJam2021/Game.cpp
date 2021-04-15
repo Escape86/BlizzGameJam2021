@@ -7,6 +7,7 @@
 #include "Enemy.h"
 #include "Texture.h"
 #include "Constants.h"
+#include "Audio.h"
 #include "SDL_timer.h"
 #include "SDL_keycode.h"
 #include <fstream>
@@ -41,6 +42,9 @@ Game::Game()
 	//load heart texture for the UI
 	this->heartTexture = new Texture(HEART_TEXTURE_PATH);
 	this->heartTexture->Load();
+
+	//start BG music
+	Audio::PlayAudio(Audio::AudioTracks::BG_MUSIC, true);
 
 	Game::_instance = this;
 }
@@ -130,10 +134,10 @@ void Game::InjectFrame()
 			{
 				this->onPlayerTakeDamage();
 				this->onPlayerTakeDamageCooldown = PLAYER_TAKE_DAMAGE_COOLDOWN;
-			}
 
-			//also bounce the enemy away via recoil
-			enemy->DoRecoil(this->player->GetFacing());
+				//also bounce the enemy away via recoil
+				enemy->DoRecoil(this->player->GetFacing());
+			}
 		}
 	}
 
@@ -561,6 +565,9 @@ void Game::onPlayerTakeDamage()
 	int playerHP = this->player->GetHp();
 	this->player->SetHp(playerHP - 1);
 	
+	//player audio for being hit
+	Audio::PlayAudio(Audio::AudioTracks::PLAYER_HIT, false);
+
 	//reduce visibility of a random layer (except UI)
 	int random = rand() % 4;
 

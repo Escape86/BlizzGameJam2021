@@ -134,7 +134,7 @@ void Display::InjectFrame()
 	//draw our queued up textures
 	for (std::vector<QueuedTexture>::iterator it = Display::textureQueue.begin(); it != Display::textureQueue.end(); ++it)
 	{
-		Texture* t = it->texture;
+		const Texture* t = it->texture;
 
 		if (it->isSpriteSheet)
 		{
@@ -221,7 +221,7 @@ SDL_Renderer* const Display::GetRenderer()
 	return Display::renderer;
 }
 
-void Display::QueueTextureForRendering(Texture* const texture, int x, int y, int width, int height, bool shiftToCenterPoint, bool isSpriteSheet /*=false*/, int spriteSheetOffsetX /*=0*/, int spriteSheetOffsetY /*=0*/)
+void Display::QueueTextureForRendering(const Texture* texture, int x, int y, int width, int height, bool shiftToCenterPoint, bool isSpriteSheet /*=false*/, int spriteSheetOffsetX /*=0*/, int spriteSheetOffsetY /*=0*/)
 {
 	Display::textureQueue.push_back({ texture, x, y, width, height, shiftToCenterPoint, isSpriteSheet, spriteSheetOffsetX, spriteSheetOffsetY });
 }

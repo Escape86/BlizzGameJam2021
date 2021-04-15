@@ -24,7 +24,7 @@ public:
 	static void SetEventCallback(std::function<void(SDL_Event e)> eventCallback);
 
 	static SDL_Renderer* const GetRenderer();
-	static void QueueTextureForRendering(Texture* const texture, int x, int y, int width, int height, bool shiftToCenterPoint, bool isSpriteSheet = false, int spriteSheetOffsetX = 0, int spriteSheetOffsetY = 0);
+	static void QueueTextureForRendering(const Texture* texture, int x, int y, int width, int height, bool shiftToCenterPoint, bool isSpriteSheet = false, int spriteSheetOffsetX = 0, int spriteSheetOffsetY = 0);
 	static void QueueRectangleForRendering(int x, int y, int width, int height, unsigned char r, unsigned char g, unsigned char b);
 
 	enum FontSize
@@ -69,7 +69,7 @@ private:
 
 	struct QueuedTexture
 	{
-		Texture* texture;
+		const Texture* texture;
 		int x;
 		int y;
 		int width;

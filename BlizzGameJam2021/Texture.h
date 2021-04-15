@@ -14,7 +14,7 @@ public:
 	static Texture* CreateFromText(const std::string& text, SDL_Color textColor, Display::FontSize fontSize);
 
 	bool Load();
-	void Draw(int x, int y, bool shiftToCenter, SDL_Rect* clip = nullptr, double angle = 0.0, SDL_Point* center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE);
+	void Draw(int x, int y, bool shiftToCenter, SDL_Rect* clip = nullptr, double angle = 0.0, SDL_Point* center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE) const;
 
 	void SetRenderOffset(int offsetX, int offsetY);
 
